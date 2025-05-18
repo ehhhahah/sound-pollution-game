@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Head content will be loaded dynamically -->
+  </head>
+  <body>
+    <div class="rules-container">
+      <div id="navbar-container"></div>
+      <div class="rules-section">
+        <h2>Game Overview</h2>
+        <p>
+          The Sound Pollution Game is designed to test your ability to identify different types of sound pollution in
+          your environment. The game consists of two main phases: listening and guessing.
+        </p>
+      </div>
+
+      <div class="rules-section">
+        <h2>Game Phases</h2>
+        <h3>Phase 1: Listening (30 seconds)</h3>
+        <ul class="rules-list">
+          <li>Multiple sound pollution samples will play simultaneously</li>
+          <li>Sounds will play in a loop during this phase</li>
+          <li>Pay attention to identify as many different sounds as possible</li>
+          <li>You can adjust your listening time using the time adjustment buttons</li>
+        </ul>
+
+        <h3>Phase 2: Guessing (10 seconds)</h3>
+        <ul class="rules-list">
+          <li>Sounds will stop playing</li>
+          <li>You must identify the sounds you heard from the available options</li>
+          <li>Click on the sounds you believe were playing</li>
+          <li>Click "Apply Guess" when you're done or wait for the timer to end</li>
+        </ul>
+      </div>
+
+      <div class="rules-section">
+        <h2>Scoring System</h2>
+        <ul class="rules-list">
+          <li>Points are awarded based on the amplitude (loudness) of correctly identified sounds</li>
+          <li>Quieter sounds are worth more points (up to 100 points)</li>
+          <li>Very loud sounds have a minimum point value of 10 points</li>
+          <li>Incorrect guesses result in a 20-point penalty</li>
+        </ul>
+
+        <div class="rules-important">
+          <h3>Time Adjustment Scoring</h3>
+          <ul class="rules-list">
+            <li>Decreasing time by 10 seconds: +50 points bonus</li>
+            <li>Increasing time by 10 seconds: -25 points penalty</li>
+            <li>Time cannot be reduced below 10 seconds</li>
+            <li>Time cannot be increased above 60 seconds</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rules-section">
+        <h2>Game Controls</h2>
+        <ul class="rules-list">
+          <li><strong>Start Game:</strong> Begins a new game session</li>
+          <li><strong>Time Adjustment Buttons:</strong> Available during the listening phase</li>
+          <li><strong>Sound Buttons:</strong> Click to identify sounds during the guessing phase</li>
+          <li><strong>Apply Guess:</strong> Submit your sound identifications</li>
+          <li><strong>Play Again:</strong> Start a new game after completion</li>
+        </ul>
+      </div>
+
+      <div class="rules-section">
+        <h2>Tips for Success</h2>
+        <ul class="rules-list">
+          <li>Focus on identifying quieter sounds first as they're worth more points</li>
+          <li>Be careful with your guesses - wrong answers cost points</li>
+          <li>Consider the time adjustment trade-off: less time means more points, but less time to listen</li>
+          <li>Remember that sounds can overlap, so listen carefully for multiple sources</li>
+        </ul>
+      </div>
+
+      <div class="rules-section">
+        <h2>Game Over</h2>
+        <ul class="rules-list">
+          <li>The game ends after the guessing phase</li>
+          <li>Your final score is displayed</li>
+          <li>A list of all sounds that were played in the session is shown</li>
+          <li>You can start a new game using the "Play Again" button</li>
+        </ul>
+      </div>
+      <div id="footer-container"></div>
+    </div>
+    <script src="components/loadComponents.js"></script>
+  </body>
+</html>

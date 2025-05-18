@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<!-- Sound Pollution Challenge Game
+     A browser-based game that tests players' ability to identify different types of sound pollution.
+     Features:
+     - Random sound playback from pollution samples
+     - Time-limited gameplay (60 seconds)
+     - Scoring system based on sound amplitude
+     - Interactive sound grid for guessing
+-->
+<html lang="en">
+  <head>
+    <!-- Head content will be loaded dynamically -->
+  </head>
+  <body>
+    <div class="game-container">
+      <div id="navbar-container"></div>
+      <div class="score-display">
+        <p>Score: <span id="score">0</span></p>
+        <p>Time: <span id="timer">30</span>s</p>
+      </div>
+      <main>
+        <div class="game-area">
+          <!-- Game states: Controls, Play, and Game Over -->
+          <div class="game-start">
+            <!-- Initial game controls -->
+            <div id="gameControls" class="game-controls">
+              <button id="startGame" class="primary-button">Start Game</button>
+            </div>
+
+            <!-- Loading screen -->
+            <div id="loadingScreen" class="loading-screen" style="display: none">
+              <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p id="loadingProgress">Loading sounds... 0%</p>
+              </div>
+            </div>
+
+            <!-- Active gameplay interface -->
+            <div id="gamePlay" class="game-play" style="display: none">
+              <!-- Time adjustment controls -->
+              <div id="timeAdjustment" class="time-adjustment">
+                <button id="decreaseTime" class="time-button">-10s (More Points)</button>
+                <button id="increaseTime" class="time-button">+10s (Less Points)</button>
+              </div>
+              <!-- Grid of sound buttons for guessing -->
+              <div class="sound-grid" style="display: none">
+                <!-- Sound buttons will be dynamically added here -->
+              </div>
+              <button id="applyGuess" class="primary-button" style="display: none">Apply Guess</button>
+            </div>
+
+            <!-- Game over screen with final score -->
+            <div id="gameOver" class="game-over" style="display: none">
+              <h2>Game Over!</h2>
+              <p>Final Score: <span id="finalScore">0</span></p>
+              <div id="sessionSounds" class="session-sounds">
+                <h3>Sounds in this session:</h3>
+                <ul></ul>
+              </div>
+              <button id="playAgain" class="primary-button">Play Again</button>
+            </div>
+          </div>
+        </div>
+      </main>
+      <div id="footer-container"></div>
+    </div>
+    <script src="components/loadComponents.js"></script>
+    <script src="game.js"></script>
+  </body>
+</html>

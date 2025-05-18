@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Build and distribution
+dist/
+build/
+*.min.js
+*.min.css
+
+# Testing
+coverage/
+.nyc_output/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# Cache directories
+.cache/
+.temp/
+.tmp/
+
+# Browser specific files
+*.crx
+*.pem
+*.key
+
+# Audio files (if any are generated)
+*.mp3
+*.wav
+*.ogg
+*.m4a
+
+# Backup files
+*.bak
+*.backup
+*~

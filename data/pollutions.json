@@ -1,0 +1,87 @@
+[
+    {
+        "pollution": "road_traffic",
+        "amplitude": "45-75 dB",
+        "frequency": "constant",
+        "sound_file": "sounds/road_traffic.ogg",
+        "sound_file_source": "https://freesound.org/people/kyles/sounds/450558/",
+        "affects": [
+            "people",
+            "animals",
+            "urban residents"
+        ],
+        "existence": [
+            "cities",
+            "suburbs",
+            "highways",
+            "residential areas"
+        ]
+    },
+    {
+        "pollution": "aircraft",
+        "amplitude": "60-150 dB",
+        "frequency": "variable, dependent on proximity to airports",
+        "sound_file": "sounds/airplane.ogg",
+        "sound_file_source": "https://freesound.org/people/TRP/sounds/573806/",
+        "affects": [
+            "people near airports",
+            "birds",
+            "wildlife"
+        ],
+        "existence": [
+            "flight paths",
+            "areas near airports"
+        ]
+    },
+    {
+        "pollution": "railways",
+        "amplitude": "70-90 dB",
+        "frequency": "regular, schedule-dependent",
+        "sound_file": "sounds/railway.ogg",
+        "sound_file_source": "https://freesound.org/people/miastodzwiekow/sounds/113178/",
+        "affects": [
+            "residents near tracks",
+            "urban communities"
+        ],
+        "existence": [
+            "railway tracks",
+            "stations",
+            "rail yards"
+        ]
+    },
+    {
+        "pollution": "industrial",
+        "amplitude": "60-134 dB",
+        "frequency": "continuous during operation hours",
+        "sound_file": "sounds/factory.ogg",
+        "sound_file_source": "https://freesound.org/people/viertelnachvier/sounds/249637/",
+        "affects": [
+            "workers",
+            "nearby residents",
+            "local environment"
+        ],
+        "existence": [
+            "factories",
+            "industrial zones",
+            "manufacturing plants"
+        ]
+    },
+    {
+        "pollution": "calm_pedestrian_traffic",
+        "amplitude": "30-50 dB",
+        "frequency": "constant",
+        "sound_file": "sounds/calm_pedestrian_traffic.ogg",
+        "sound_file_source": "https://freesound.org/people/felix.blume/sounds/705050/",
+        "affects": [
+            "pedestrians",
+            "residents",
+            "shop owners"
+        ],
+        "existence": [
+            "pedestrian zones",
+            "shopping streets",
+            "city centers",
+            "residential areas"
+        ]
+    }
+]

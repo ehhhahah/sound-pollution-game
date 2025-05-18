@@ -1,0 +1,180 @@
+[
+    {
+        "group": "dzieci",
+        "risk": [
+            "zaburzenia snu",
+            "upośledzenie funkcji poznawczych",
+            "problemy z nauką",
+            "większa podatność na zaburzenia zachowania"
+        ]
+    },
+    {
+        "group": "osoby starsze",
+        "risk": [
+            "pogorszenie słuchu",
+            "zwiększone ryzyko chorób sercowo-naczyniowych",
+            "zaburzenia snu",
+            "większa podatność na udar"
+        ]
+    },
+    {
+        "group": "osoby przewlekle chore",
+        "risk": [
+            "zaostrzenie objawów chorób",
+            "szczególnie sercowo-naczyniowych",
+            "zaostrzenie objawów chorób przewlekłych",
+            "szczególnie sercowo-naczyniowych i oddechowych"
+        ]
+    },
+    {
+        "group": "osoby z upośledzeniem słuchu",
+        "risk": [
+            "pogorszenie komunikacji",
+            "większa podatność na stres związany z hałasem"
+        ]
+    },
+    {
+        "group": "osoby z chorobami psychicznymi (np. autyzm, schizofrenia)",
+        "risk": [
+            "nadmierna stymulacja",
+            "pogorszenie funkcjonowania społecznego",
+            "wzrost poziomu stresu"
+        ]
+    },
+    {
+        "group": "kobiety w ciąży",
+        "risk": [
+            "zwiększone ryzyko powikłań ciążowych (np. stan przedrzucawkowy)",
+            "wpływ na zdrowie płodu"
+        ]
+    },
+    {
+        "group": "płody i noworodki",
+        "risk": [
+            "zaburzenia rozwoju",
+            "wpływ na zdrowie po urodzeniu"
+        ]
+    },
+    {
+        "group": "osoby o wysokiej wrażliwości na hałas",
+        "risk": [
+            "większe ryzyko chorób układu krążenia",
+            "zaburzenia snu",
+            "pogorszenie jakości życia"
+        ]
+    },
+    {
+        "group": "pracownicy zmianowi",
+        "risk": [
+            "zaburzenia snu",
+            "chroniczne zmęczenie",
+            "zwiększone ryzyko chorób serca"
+        ]
+    },
+    {
+        "group": "osoby o niskim statusie społeczno-ekonomicznym",
+        "risk": [
+            "większa ekspozycja na hałas",
+            "kumulacja skutków zdrowotnych",
+            "ograniczony dostęp do ochrony"
+        ]
+    },
+    {
+        "group": "ptaki",
+        "risk": [
+            "zakłócenie komunikacji",
+            "zmiany w zachowaniu",
+            "obniżona rozrodczość"
+        ]
+    },
+    {
+        "group": "płazy (np. żaby)",
+        "risk": [
+            "stres fizjologiczny",
+            "zaburzenia rozrodu",
+            "zakłócenie komunikacji"
+        ]
+    },
+    {
+        "group": "nietoperze",
+        "risk": [
+            "utrudnienia w polowaniu",
+            "zmniejszona skuteczność zdobywania pokarmu"
+        ]
+    },
+    {
+        "group": "owady i pajęczaki",
+        "risk": [
+            "spadek liczebności populacji",
+            "zaburzenia ekosystemów"
+        ]
+    },
+    {
+        "group": "wieloryby i delfiny",
+        "risk": [
+            "utrudniona komunikacja",
+            "zakłócenia migracji",
+            "śmierć osobników"
+        ]
+    },
+    {
+        "group": "ryby",
+        "risk": [
+            "osłabienie odporności",
+            "wyższa śmiertelność",
+            "zaburzenia rozrodu"
+        ]
+    },
+    {
+        "group": "siewki drzew i rośliny",
+        "risk": [
+            "utrudniona rekrutacja młodych roślin",
+            "zmiany w strukturze ekosystemu"
+        ]
+    },
+    {
+        "group": "osoby cierpiące na szumy uszne (tinnitus)",
+        "risk": [
+            "nasilenie objawów",
+            "pogorszenie jakości życia",
+            "zaburzenia snu"
+        ]
+    },
+    {
+        "group": "dzieci z zaburzeniami rozwojowymi (ASD, ADHD, zaburzenia sensoryczne)",
+        "risk": [
+            "nadmierna stymulacja",
+            "trudności w funkcjonowaniu",
+            "pogorszenie zachowania"
+        ]
+    },
+    {
+        "group": "ssaki lądowe",
+        "risk": [
+            "reakcje stresowe",
+            "zaburzenia snu",
+            "zmiany behawioralne"
+        ]
+    },
+    {
+        "group": "bezkręgowce morskie",
+        "risk": [
+            "uszkodzenia fizjologiczne",
+            "zaburzenia funkcji życiowych"
+        ]
+    },
+    {
+        "group": "społeczności roślinne",
+        "risk": [
+            "zmiany w strukturze i dynamice społeczności roślinnych",
+            "nawet po ustaniu hałasu"
+        ]
+    },
+    {
+        "group": "ekosystemy morskie",
+        "risk": [
+            "zakłócenie funkcjonowania całych ekosystemów",
+            "od planktonu po wieloryby"
+        ]
+    }
+]

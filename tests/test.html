@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!-- Sound Pollution Challenge Game - Test Suite
+     This file sets up the test environment for the game using Mocha and Chai.
+     It provides a test container for DOM manipulation and loads the necessary test files.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Tests</title>
+    <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
+  </head>
+  <body>
+    <!-- Mocha test reporter container -->
+    <div id="mocha"></div>
+    <!-- Container for DOM manipulation during tests -->
+    <div id="test-container"></div>
+
+    <!-- Test framework dependencies -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/10.2.0/mocha.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/4.3.7/chai.min.js"></script>
+    <script>
+      // Configure Mocha to use BDD style
+      mocha.setup('bdd')
+      const expect = chai.expect
+
+      // Override document.body.innerHTML to use test-container instead
+      // This prevents test DOM manipulation from affecting the test reporter
+      const originalInnerHTML = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML')
+      Object.defineProperty(document.body, 'innerHTML', {
+        set: function (value) {
+          document.getElementById('test-container').innerHTML = value
+        },
+        get: function () {
+          return document.getElementById('test-container').innerHTML
+        }
+      })
+    </script>
+
+    <!-- Load game and test files -->
+    <script src="../game.js"></script>
+    <script src="game.test.js"></script>
+    <script>
+      // Run the test suite
+      mocha.run()
+    </script>
+  </body>
+</html>

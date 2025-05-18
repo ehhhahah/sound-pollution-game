@@ -1,0 +1,81 @@
+    {
+        "pollution": "construction",
+        "amplitude": "80-130 dB",
+        "frequency": "temporary, project duration dependent",
+        "sound_file": "sounds/construction.mp3",
+        "sound_file_source": "",
+        "affects": [
+            "construction workers",
+            "nearby residents",
+            "office workers"
+        ],
+        "existence": [
+            "construction sites",
+            "developing urban areas"
+        ]
+    },
+    {
+        "pollution": "motorcycles",
+        "amplitude": "up to 80 dB",
+        "frequency": "irregular, more common in good weather",
+        "sound_file": "sounds/motorcycles.mp3",
+        "sound_file_source": "",
+        "affects": [
+            "pedestrians",
+            "residents",
+            "other road users"
+        ],
+        "existence": [
+            "roads",
+            "residential streets",
+            "highways"
+        ]
+    },
+    {
+        "pollution": "sirens",
+        "amplitude": "up to 120 dB",
+        "frequency": "sporadic but intense",
+        "sound_file": "sounds/sirens.mp3",
+        "sound_file_source": "",
+        "affects": [
+            "residents near hospitals, police stations, fire stations"
+        ],
+        "existence": [
+            "urban areas",
+            "emergency routes"
+        ]
+    },
+    {
+        "pollution": "household",
+        "amplitude": "60-88 dB",
+        "frequency": "daily, irregular",
+        "sound_file": "sounds/household.mp3",
+        "sound_file_source": "",
+        "affects": [
+            "family members",
+            "neighbors",
+            "apartment residents"
+        ],
+        "existence": [
+            "homes",
+            "apartment buildings",
+            "residential complexes"
+        ]
+    },
+    {
+        "pollution": "social_events",
+        "amplitude": "80-110 dB",
+        "frequency": "occasional",
+        "sound_file": "sounds/social_events.mp3",
+        "sound_file_source": "",
+        "affects": [
+            "participants",
+            "nearby residents",
+            "community members"
+        ],
+        "existence": [
+            "entertainment venues",
+            "parks",
+            "public spaces"
+        ]
+    }

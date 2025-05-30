@@ -804,3 +804,172 @@ describe('Transition State', function () {
     expect(gameOver.style.display).to.equal('block')
   })
 })
+
+describe('Sound Management', function () {
+  beforeEach(function () {
+    // Reset game state before each test
+    window.gameFunctions.resetGameState()
+
+    // Create necessary DOM structure
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div class="sound-grid"></div>
+        <div class="score-display">
+          <p>Score: <span id="score">0</span></p>
+        </div>
+      </div>
+    `
+  })
+
+  describe('stopAllSounds', function () {
+    it('should stop all playing sounds and clear sound arrays', function () {
+      const gameState = window.gameFunctions.getGameState()
+      const mockAudio1 = new MockAudio()
+      const mockAudio2 = new MockAudio()
+
+      gameState.soundElements = [{ element: mockAudio1 }, { element: mockAudio2 }]
+      gameState.activeSounds = [
+        { pollution: 'car', sound_file: 'car.mp3' },
+        { pollution: 'train', sound_file: 'train.mp3' }
+      ]
+
+      window.gameFunctions.stopAllSounds()
+
+      expect(mockAudio1.paused).to.be.true
+      expect(mockAudio2.paused).to.be.true
+      expect(mockAudio1.currentTime).to.equal(0)
+      expect(mockAudio2.currentTime).to.equal(0)
+      expect(gameState.activeSounds).to.be.empty
+      expect(gameState.soundElements).to.be.empty
+    })
+  })
+
+  describe('createSoundGrid', function () {
+    it('should create buttons for all pollutions', function () {
+      const gameState = window.gameFunctions.getGameState()
+      gameState.pollutions = [
+        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
+        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+      ]
+
+      window.gameFunctions.createSoundGrid()
+
+      const buttons = document.querySelectorAll('.sound-button')
+      expect(buttons.length).to.equal(2)
+      expect(buttons[0].dataset.sound).to.equal('car')
+      expect(buttons[1].dataset.sound).to.equal('train')
+    })
+
+    it('should handle empty pollutions array', function () {
+      const gameState = window.gameFunctions.getGameState()
+      gameState.pollutions = []
+
+      window.gameFunctions.createSoundGrid()
+
+      const buttons = document.querySelectorAll('.sound-button')
+      expect(buttons.length).to.equal(0)
+    })
+  })
+})
+
+describe('Game Timer', function () {
+  beforeEach(function () {
+    // Reset game state before each test
+    window.gameFunctions.resetGameState()
+
+    // Create necessary DOM structure
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div class="score-display">
+          <p>Time: <span id="timer">30</span>s</p>
+        </div>
+      </div>
+    `
+  })
+
+  describe('startGameTimer', function () {
+    it('should initialize timer with 30 seconds', function () {
+      const gameState = window.gameFunctions.getGameState()
+      const timerElement = document.getElementById('timer')
+
+      window.gameFunctions.startGameTimer()
+
+      expect(gameState.timeRemaining).to.equal(30)
+      expect(timerElement.textContent).to.equal('30')
+    })
+
+    it('should start interval timer', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      window.gameFunctions.startGameTimer()
+
+      expect(gameState.gameInterval).to.not.be.null
+    })
+  })
+})
+
+describe('Game Reset', function () {
+  beforeEach(function () {
+    // Reset game state before each test
+    window.gameFunctions.resetGameState()
+
+    // Create necessary DOM structure
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div id="gameControls" style="display: none"></div>
+        <div id="gamePlay" style="display: block"></div>
+        <div id="gameOver" style="display: block"></div>
+        <div class="sound-grid" style="display: grid"></div>
+        <div id="timeAdjustment" style="display: block"></div>
+        <div class="score-display">
+          <p>Score: <span id="score">100</span></p>
+          <p>Time: <span id="timer">10</span>s</p>
+        </div>
+      </div>
+    `
+  })
+
+  describe('resetGame', function () {
+    it('should reset all game state values', function () {
+      const gameState = window.gameFunctions.getGameState()
+      gameState.score = 100
+      gameState.guessedSounds.add('car')
+      gameState.selectedSounds = ['car', 'train']
+      gameState.pointsMultiplier = 2.0
+      gameState.isGuessingPhase = true
+      gameState.guessingTimeRemaining = 5
+      gameState.timeRemaining = 10
+
+      window.gameFunctions.resetGame()
+
+      expect(gameState.score).to.equal(0)
+      expect(gameState.guessedSounds.size).to.equal(0)
+      expect(gameState.selectedSounds).to.be.empty
+      expect(gameState.pointsMultiplier).to.equal(1.0)
+      expect(gameState.isGuessingPhase).to.be.false
+      expect(gameState.guessingTimeRemaining).to.equal(10)
+      expect(gameState.timeRemaining).to.equal(30)
+    })
+
+    it('should reset UI elements to initial state', function () {
+      window.gameFunctions.resetGame()
+
+      expect(document.getElementById('gameControls').style.display).to.equal('block')
+      expect(document.getElementById('gamePlay').style.display).to.equal('none')
+      expect(document.getElementById('gameOver').style.display).to.equal('none')
+      expect(document.querySelector('.sound-grid').style.display).to.equal('none')
+      expect(document.getElementById('timeAdjustment').style.display).to.equal('none')
+    })
+
+    it('should clear all intervals', function () {
+      const gameState = window.gameFunctions.getGameState()
+      gameState.gameInterval = setInterval(() => {}, 1000)
+      gameState.guessingInterval = setInterval(() => {}, 1000)
+
+      window.gameFunctions.resetGame()
+
+      expect(gameState.gameInterval).to.be.null
+      expect(gameState.guessingInterval).to.be.null
+    })
+  })
+})

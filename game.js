@@ -24,6 +24,77 @@ let gameState = {
 }
 
 /**
+ * Toggles visibility of UI elements
+ * @param {Object} elements - Object containing element IDs/classes and their desired display states
+ */
+function toggleUIElements(elements) {
+  Object.entries(elements).forEach(([selector, display]) => {
+    let element
+    if (selector.startsWith('.')) {
+      element = document.querySelector(selector)
+    } else {
+      element = document.getElementById(selector)
+    }
+    if (element) element.style.display = display
+  })
+}
+
+/**
+ * Creates and returns a sound button element
+ * @param {Object} sound - Sound data object
+ * @returns {HTMLButtonElement} The created button element
+ */
+function createSoundButton(sound) {
+  const button = document.createElement('button')
+  button.className = 'game-button sound-button'
+  button.dataset.sound = sound.pollution
+  button.textContent = sound.pollution.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+  button.addEventListener('click', () => makeGuess(sound))
+  return button
+}
+
+/**
+ * Manages sound element playback
+ * @param {Object} sound - Sound data object
+ * @param {boolean} shouldPlay - Whether to play or pause the sound
+ */
+function manageSoundElement(sound, shouldPlay) {
+  const audioElement = gameState.preloadedSounds.get(sound.pollution)
+  if (!audioElement) {
+    console.error(`Preloaded sound not found for ${sound.pollution}`)
+    return
+  }
+
+  if (shouldPlay) {
+    audioElement.currentTime = 0
+    audioElement.loop = true
+    audioElement.play()
+    gameState.activeSounds.push(sound)
+    gameState.soundElements.push({ element: audioElement })
+  } else {
+    audioElement.pause()
+    audioElement.currentTime = 0
+  }
+}
+
+/**
+ * Updates timer display and manages timer state
+ * @param {number} time - Time to display
+ * @param {boolean} isGuessingPhase - Whether this is for the guessing phase
+ */
+function updateTimer(time, isGuessingPhase = false) {
+  const timerElement = document.getElementById('timer')
+  if (timerElement) {
+    timerElement.textContent = time
+  }
+  if (isGuessingPhase) {
+    gameState.guessingTimeRemaining = time
+  } else {
+    gameState.timeRemaining = time
+  }
+}
+
+/**
  * Loads pollution data from JSON file
  * @returns {Promise<Array>} Array of pollution data
  */
@@ -63,7 +134,7 @@ async function preloadSounds() {
           () => {
             loadedSounds++
             if (loadingProgress) {
-              loadingProgress.textContent = `Loading sounds... ${Math.round((loadedSounds / totalSounds) * 100)}%`
+              loadingProgress.textContent = `Ładowanie dźwięków... ${Math.round((loadedSounds / totalSounds) * 100)}%`
             }
             resolve()
           },
@@ -71,7 +142,7 @@ async function preloadSounds() {
         )
 
         audio.addEventListener('error', () => {
-          reject(new Error(`Failed to load sound: ${pollution.pollution}`))
+          reject(new Error(`Nie udało się załadować dźwięku: ${pollution.pollution}`))
         })
         audio.src = pollution.sound_file
       })
@@ -108,69 +179,25 @@ async function init() {
  * Plays a random set of sounds at game start and loops them
  */
 function playRandomSounds() {
-  // If we already have selected sounds, just play them
   if (gameState.selectedSounds.length > 0) {
-    // Stop all current sounds first
     stopAllSounds()
-
-    // Play the selected sounds
-    gameState.selectedSounds.forEach((sound) => {
-      const audioElement = gameState.preloadedSounds.get(sound.pollution)
-      if (!audioElement) {
-        console.error(`Preloaded sound not found for ${sound.pollution}`)
-        return
-      }
-
-      // Reset and play the audio element
-      audioElement.currentTime = 0
-      audioElement.loop = true
-      audioElement.play()
-
-      gameState.activeSounds.push(sound)
-      gameState.soundElements.push({
-        element: audioElement
-      })
-    })
+    gameState.selectedSounds.forEach((sound) => manageSoundElement(sound, true))
     return
   }
 
-  // Stop all current sounds
   stopAllSounds()
-
-  // Determine number of sounds to play (1-5)
   const numSounds = Math.floor(Math.random() * 5) + 1
-
-  // Select random sounds
   const availableSounds = [...gameState.pollutions]
   gameState.selectedSounds = []
 
   for (let i = 0; i < numSounds; i++) {
     if (availableSounds.length === 0) break
-
     const randomIndex = Math.floor(Math.random() * availableSounds.length)
     const sound = availableSounds.splice(randomIndex, 1)[0]
     gameState.selectedSounds.push(sound)
   }
 
-  // Play each sound
-  gameState.selectedSounds.forEach((sound) => {
-    const audioElement = gameState.preloadedSounds.get(sound.pollution)
-    if (!audioElement) {
-      console.error(`Preloaded sound not found for ${sound.pollution}`)
-      return
-    }
-
-    // Reset and play the audio element
-    audioElement.currentTime = 0
-    audioElement.loop = true
-    audioElement.play()
-
-    gameState.activeSounds.push(sound)
-    gameState.soundElements.push({
-      element: audioElement
-    })
-  })
-
+  gameState.selectedSounds.forEach((sound) => manageSoundElement(sound, true))
   console.log(
     'Now playing sounds:',
     gameState.selectedSounds.map((s) => s.pollution)
@@ -271,7 +298,7 @@ function adjustTime(adjustment) {
     `Time adjusted by ${adjustment}s. Score updated: ${oldScore} -> ${gameState.score} (points adjustment: ${pointsAdjustment})`
   )
 
-  updateTimerDisplay()
+  updateTimer(gameState.timeRemaining)
 
   // Update button states
   const decreaseTimeBtn = document.getElementById('decreaseTime')
@@ -292,24 +319,31 @@ function adjustTime(adjustment) {
 function startGuessingPhase() {
   gameState.isGuessingPhase = true
   gameState.guessingTimeRemaining = 10
-  document.querySelector('.sound-grid').style.display = 'grid'
-  document.getElementById('applyGuess').style.display = 'block'
 
-  // Hide time adjustment buttons during guessing phase
-  document.getElementById('timeAdjustment').style.display = 'none'
+  // Create sound grid if it doesn't exist
+  const soundGrid = document.querySelector('.sound-grid')
+  if (!soundGrid) {
+    createSoundGrid()
+  }
 
-  // Mute all sounds during guessing phase
-  gameState.soundElements.forEach((sound) => {
-    sound.element.pause()
+  // Set display styles directly
+  if (soundGrid) {
+    soundGrid.style.display = 'grid'
+  }
+
+  toggleUIElements({
+    'sound-grid': 'grid',
+    applyGuess: 'flex',
+    timeAdjustment: 'none',
+    gamePlay: 'block' // Ensure game play area is visible
   })
 
-  // Update timer display to show guessing phase time
-  document.getElementById('timer').textContent = gameState.guessingTimeRemaining
+  gameState.soundElements.forEach((sound) => sound.element.pause())
+  updateTimer(gameState.guessingTimeRemaining, true)
 
-  // Start guessing phase timer
   gameState.guessingInterval = setInterval(() => {
     gameState.guessingTimeRemaining--
-    document.getElementById('timer').textContent = gameState.guessingTimeRemaining
+    updateTimer(gameState.guessingTimeRemaining, true)
 
     if (gameState.guessingTimeRemaining <= 0) {
       endGuessingPhase()
@@ -323,22 +357,21 @@ function startGuessingPhase() {
 function endGuessingPhase() {
   clearInterval(gameState.guessingInterval)
   gameState.isGuessingPhase = false
-  document.querySelector('.sound-grid').style.display = 'none'
-  document.getElementById('applyGuess').style.display = 'none'
 
-  // Hide time adjustment buttons after guessing phase
-  document.getElementById('timeAdjustment').style.display = 'none'
+  toggleUIElements({
+    'sound-grid': 'none',
+    applyGuess: 'none',
+    timeAdjustment: 'none',
+    gamePlay: 'none',
+    gameOver: 'block'
+  })
 
-  // Show game over screen
-  document.getElementById('gamePlay').style.display = 'none'
-  document.getElementById('gameOver').style.display = 'block'
   document.getElementById('finalScore').textContent = gameState.score
 
-  // Display session sounds
   const sessionSoundsList = document.querySelector('#sessionSounds ul')
   if (sessionSoundsList) {
-    sessionSoundsList.innerHTML = '' // Clear previous sounds
-    if (gameState.selectedSounds && gameState.selectedSounds.length > 0) {
+    sessionSoundsList.innerHTML = ''
+    if (gameState.selectedSounds?.length > 0) {
       gameState.selectedSounds.forEach((sound) => {
         const li = document.createElement('li')
         li.textContent = sound.pollution.replace('_', ' ').toUpperCase()
@@ -379,11 +412,11 @@ function calculatePoints(sound, isCorrect) {
  */
 function startGameTimer() {
   gameState.timeRemaining = 30
-  updateTimerDisplay()
+  updateTimer(30)
 
   gameState.gameInterval = setInterval(() => {
     gameState.timeRemaining--
-    updateTimerDisplay()
+    updateTimer(gameState.timeRemaining)
 
     if (gameState.timeRemaining <= 0) {
       clearInterval(gameState.gameInterval)
@@ -447,51 +480,64 @@ function createSoundGrid() {
   if (!soundGrid) return
 
   soundGrid.innerHTML = ''
-  soundGrid.style.display = 'none' // Ensure grid is hidden at start
+  soundGrid.style.display = 'none'
 
-  // Create grid of sound buttons for all pollutions
-  gameState.pollutions.forEach((pollution, index) => {
-    const button = document.createElement('button')
-    button.className = 'sound-button'
-    button.dataset.sound = pollution.pollution
-    button.textContent = pollution.pollution.replace('_', ' ').toUpperCase()
-    button.addEventListener('click', () => makeGuess(pollution))
-    soundGrid.appendChild(button)
+  gameState.pollutions.forEach((sound) => {
+    soundGrid.appendChild(createSoundButton(sound))
   })
-}
 
-/**
- * Updates the timer display
- */
-function updateTimerDisplay() {
-  document.getElementById('timer').textContent = gameState.timeRemaining
+  soundGrid.style.display = 'grid'
 }
 
 /**
  * Ends the game and shows final score
  */
 function endGame() {
-  clearInterval(gameState.gameInterval)
-  clearInterval(gameState.soundChangeInterval)
-
-  // Stop all sounds
+  // Stop all sounds and timers
   stopAllSounds()
+  clearInterval(gameState.gameInterval)
+  clearInterval(gameState.guessingInterval)
 
-  document.getElementById('gamePlay').style.display = 'none'
-  document.getElementById('gameOver').style.display = 'block'
-  document.getElementById('finalScore').textContent = gameState.score
-  document.getElementById('resultMessage').style.display = 'none'
+  // Show game over screen
+  const gameOver = document.getElementById('gameOver')
+  const finalScore = document.getElementById('finalScore')
+  const sessionSounds = document.getElementById('sessionSounds')
+  const gamePlay = document.getElementById('gamePlay')
+  const soundGrid = document.querySelector('.sound-grid')
+
+  if (gameOver) gameOver.style.display = 'block'
+  if (finalScore) finalScore.textContent = gameState.score
+  if (gamePlay) gamePlay.style.display = 'none'
+  if (soundGrid) soundGrid.style.display = 'none'
+
+  // List all sounds that were played
+  if (sessionSounds) {
+    const soundsList = sessionSounds.querySelector('ul')
+    if (soundsList) {
+      soundsList.innerHTML = ''
+      gameState.selectedSounds.forEach((sound) => {
+        const li = document.createElement('li')
+        li.textContent = sound.pollution.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+        soundsList.appendChild(li)
+      })
+    }
+  }
 }
 
 /**
  * Resets the game state for a new game
  */
 function resetGame() {
-  // Clear intervals
-  if (gameState.gameInterval) clearInterval(gameState.gameInterval)
-  if (gameState.guessingInterval) clearInterval(gameState.guessingInterval)
+  // Clear intervals first
+  if (gameState.gameInterval) {
+    clearInterval(gameState.gameInterval)
+    gameState.gameInterval = null
+  }
+  if (gameState.guessingInterval) {
+    clearInterval(gameState.guessingInterval)
+    gameState.guessingInterval = null
+  }
 
-  // Stop all sounds
   stopAllSounds()
 
   // Reset game state
@@ -503,14 +549,17 @@ function resetGame() {
   gameState.guessingTimeRemaining = 10
   gameState.timeRemaining = 30
 
-  // Reset UI
   updateScoreDisplay()
-  document.getElementById('timer').textContent = '30'
-  document.getElementById('gameOver').style.display = 'none'
-  document.getElementById('gameControls').style.display = 'block'
-  document.querySelector('.sound-grid').style.display = 'none'
-  document.getElementById('applyGuess').style.display = 'none'
-  document.getElementById('timeAdjustment').style.display = 'block'
+  updateTimer(30)
+
+  // Reset UI elements
+  toggleUIElements({
+    gameOver: 'none',
+    gameControls: 'block', // Changed back to 'block' to match test expectations
+    '.sound-grid': 'none', // Updated to use class selector
+    applyGuess: 'none',
+    timeAdjustment: 'none'
+  })
 }
 
 // Prevent game initialization during tests
@@ -536,6 +585,9 @@ if (window.location.pathname.includes('test.html')) {
     endGuessingPhase,
     applyGuess,
     calculatePoints,
+    createSoundGrid,
+    startGameTimer,
+    resetGame,
     getGameState: () => gameState,
     resetGameState: () => {
       gameState = {

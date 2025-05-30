@@ -19,6 +19,7 @@ Technical Implementation:
 - Sound data is loaded from JSON files in the /data/ folder
 - Game state management and logic in game.js
 - UI implementation in game.html
+- UI must be in Polish
 
 Testing:
 

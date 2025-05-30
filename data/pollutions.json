@@ -1,87 +1,87 @@
 [
     {
-        "pollution": "road_traffic",
+        "pollution": "ruch_uliczny",
         "amplitude": "45-75 dB",
-        "frequency": "constant",
+        "frequency": "stała",
         "sound_file": "sounds/road_traffic.ogg",
         "sound_file_source": "https://freesound.org/people/kyles/sounds/450558/",
         "affects": [
-            "people",
-            "animals",
-            "urban residents"
+            "ludzie",
+            "zwierzęta",
+            "mieszkańcy miast"
         ],
         "existence": [
-            "cities",
-            "suburbs",
-            "highways",
-            "residential areas"
+            "miasta",
+            "przedmieścia",
+            "autostrady",
+            "obszary mieszkalne"
         ]
     },
     {
-        "pollution": "aircraft",
+        "pollution": "samoloty",
         "amplitude": "60-150 dB",
-        "frequency": "variable, dependent on proximity to airports",
+        "frequency": "zmienna, zależna od bliskości lotnisk",
         "sound_file": "sounds/airplane.ogg",
         "sound_file_source": "https://freesound.org/people/TRP/sounds/573806/",
         "affects": [
-            "people near airports",
-            "birds",
-            "wildlife"
+            "ludzie mieszkający w pobliżu lotnisk",
+            "ptaki",
+            "dzika przyroda"
         ],
         "existence": [
-            "flight paths",
-            "areas near airports"
+            "trasy lotnicze",
+            "obszary w pobliżu lotnisk"
         ]
     },
     {
-        "pollution": "railways",
+        "pollution": "kolej",
         "amplitude": "70-90 dB",
-        "frequency": "regular, schedule-dependent",
+        "frequency": "regularna, zależna od rozkładu jazdy",
         "sound_file": "sounds/railway.ogg",
         "sound_file_source": "https://freesound.org/people/miastodzwiekow/sounds/113178/",
         "affects": [
-            "residents near tracks",
-            "urban communities"
+            "mieszkańcy w pobliżu torów",
+            "społeczności miejskie"
         ],
         "existence": [
-            "railway tracks",
-            "stations",
-            "rail yards"
+            "tory kolejowe",
+            "stacje",
+            "dworce kolejowe"
         ]
     },
     {
-        "pollution": "industrial",
+        "pollution": "przemysł",
         "amplitude": "60-134 dB",
-        "frequency": "continuous during operation hours",
+        "frequency": "ciągła podczas godzin pracy",
         "sound_file": "sounds/factory.ogg",
         "sound_file_source": "https://freesound.org/people/viertelnachvier/sounds/249637/",
         "affects": [
-            "workers",
-            "nearby residents",
-            "local environment"
+            "pracownicy",
+            "okoliczni mieszkańcy",
+            "lokalne środowisko"
         ],
         "existence": [
-            "factories",
-            "industrial zones",
-            "manufacturing plants"
+            "fabryki",
+            "strefy przemysłowe",
+            "zakłady produkcyjne"
         ]
     },
     {
-        "pollution": "calm_pedestrian_traffic",
+        "pollution": "spokojny_ruch_pieszych",
         "amplitude": "30-50 dB",
-        "frequency": "constant",
+        "frequency": "stała",
         "sound_file": "sounds/calm_pedestrian_traffic.ogg",
         "sound_file_source": "https://freesound.org/people/felix.blume/sounds/705050/",
         "affects": [
-            "pedestrians",
-            "residents",
-            "shop owners"
+            "piesi",
+            "mieszkańcy",
+            "właściciele sklepów"
         ],
         "existence": [
-            "pedestrian zones",
-            "shopping streets",
-            "city centers",
-            "residential areas"
+            "strefy piesze",
+            "ulice handlowe",
+            "centra miast",
+            "obszary mieszkalne"
         ]
     }
 ]

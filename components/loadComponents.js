@@ -21,11 +21,9 @@ async function loadHeadContent() {
     // Remove existing meta tags and title
     const existingMeta = head.querySelectorAll('meta')
     const existingTitle = head.querySelector('title')
-    const existingLink = head.querySelector('link[rel="stylesheet"]')
 
     existingMeta.forEach((meta) => meta.remove())
     if (existingTitle) existingTitle.remove()
-    if (existingLink) existingLink.remove()
 
     // Add new head content
     Array.from(doc.head.children).forEach((element) => {

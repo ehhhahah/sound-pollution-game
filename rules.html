@@ -1,86 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
   <head>
+    <link rel="stylesheet" href="styles.css" />
     <!-- Head content will be loaded dynamically -->
   </head>
   <body>
     <div class="rules-container">
       <div id="navbar-container"></div>
       <div class="rules-section">
-        <h2>Game Overview</h2>
+        <h2>Przegląd Gry</h2>
         <p>
-          The Sound Pollution Game is designed to test your ability to identify different types of sound pollution in
-          your environment. The game consists of two main phases: listening and guessing.
+          Gra Zanieczyszczenie Hałasem została zaprojektowana, aby sprawdzić Twoją umiejętność identyfikacji różnych
+          rodzajów zanieczyszczenia hałasem w Twoim otoczeniu. Gra składa się z dwóch głównych faz: słuchania i
+          zgadywania.
         </p>
       </div>
 
       <div class="rules-section">
-        <h2>Game Phases</h2>
-        <h3>Phase 1: Listening (30 seconds)</h3>
+        <h2>Fazy Gry</h2>
+        <h3>Faza 1: Słuchanie (30 sekund)</h3>
         <ul class="rules-list">
-          <li>Multiple sound pollution samples will play simultaneously</li>
-          <li>Sounds will play in a loop during this phase</li>
-          <li>Pay attention to identify as many different sounds as possible</li>
-          <li>You can adjust your listening time using the time adjustment buttons</li>
+          <li>Wiele próbek zanieczyszczenia hałasem będzie odtwarzanych jednocześnie</li>
+          <li>Dźwięki będą odtwarzane w pętli podczas tej fazy</li>
+          <li>Skup się na identyfikacji jak największej liczby różnych dźwięków</li>
+          <li>Możesz dostosować czas słuchania za pomocą przycisków regulacji czasu</li>
         </ul>
 
-        <h3>Phase 2: Guessing (10 seconds)</h3>
+        <h3>Faza 2: Zgadywanie (10 sekund)</h3>
         <ul class="rules-list">
-          <li>Sounds will stop playing</li>
-          <li>You must identify the sounds you heard from the available options</li>
-          <li>Click on the sounds you believe were playing</li>
-          <li>Click "Apply Guess" when you're done or wait for the timer to end</li>
+          <li>Dźwięki przestaną grać</li>
+          <li>Musisz zidentyfikować dźwięki, które usłyszałeś, spośród dostępnych opcji</li>
+          <li>Kliknij na dźwięki, które Twoim zdaniem były odtwarzane</li>
+          <li>Kliknij "Zatwierdź Odpowiedź" gdy skończysz lub poczekaj na koniec licznika</li>
         </ul>
       </div>
 
       <div class="rules-section">
-        <h2>Scoring System</h2>
+        <h2>System Punktacji</h2>
         <ul class="rules-list">
-          <li>Points are awarded based on the amplitude (loudness) of correctly identified sounds</li>
-          <li>Quieter sounds are worth more points (up to 100 points)</li>
-          <li>Very loud sounds have a minimum point value of 10 points</li>
-          <li>Incorrect guesses result in a 20-point penalty</li>
+          <li>Punkty są przyznawane na podstawie amplitudy (głośności) poprawnie zidentyfikowanych dźwięków</li>
+          <li>Cichsze dźwięki są warte więcej punktów (do 100 punktów)</li>
+          <li>Bardzo głośne dźwięki mają minimalną wartość 10 punktów</li>
+          <li>Nieprawidłowe zgadywanie skutkuje karą 20 punktów</li>
         </ul>
 
         <div class="rules-important">
-          <h3>Time Adjustment Scoring</h3>
+          <h3>Punktacja za Dostosowanie Czasu</h3>
           <ul class="rules-list">
-            <li>Decreasing time by 10 seconds: +50 points bonus</li>
-            <li>Increasing time by 10 seconds: -25 points penalty</li>
-            <li>Time cannot be reduced below 10 seconds</li>
-            <li>Time cannot be increased above 60 seconds</li>
+            <li>Zmniejszenie czasu o 10 sekund: +50 punktów bonusu</li>
+            <li>Zwiększenie czasu o 10 sekund: -25 punktów kary</li>
+            <li>Czas nie może być zmniejszony poniżej 10 sekund</li>
+            <li>Czas nie może być zwiększony powyżej 60 sekund</li>
           </ul>
         </div>
       </div>
 
       <div class="rules-section">
-        <h2>Game Controls</h2>
+        <h2>Sterowanie Grą</h2>
         <ul class="rules-list">
-          <li><strong>Start Game:</strong> Begins a new game session</li>
-          <li><strong>Time Adjustment Buttons:</strong> Available during the listening phase</li>
-          <li><strong>Sound Buttons:</strong> Click to identify sounds during the guessing phase</li>
-          <li><strong>Apply Guess:</strong> Submit your sound identifications</li>
-          <li><strong>Play Again:</strong> Start a new game after completion</li>
+          <li><strong>Rozpocznij Grę:</strong> Rozpoczyna nową sesję gry</li>
+          <li><strong>Przyciski Regulacji Czasu:</strong> Dostępne podczas fazy słuchania</li>
+          <li><strong>Przyciski Dźwięków:</strong> Kliknij, aby zidentyfikować dźwięki podczas fazy zgadywania</li>
+          <li><strong>Zatwierdź Odpowiedź:</strong> Prześlij swoje identyfikacje dźwięków</li>
+          <li><strong>Zagraj Ponownie:</strong> Rozpocznij nową grę po zakończeniu</li>
         </ul>
       </div>
 
       <div class="rules-section">
-        <h2>Tips for Success</h2>
+        <h2>Wskazówki do Sukcesu</h2>
         <ul class="rules-list">
-          <li>Focus on identifying quieter sounds first as they're worth more points</li>
-          <li>Be careful with your guesses - wrong answers cost points</li>
-          <li>Consider the time adjustment trade-off: less time means more points, but less time to listen</li>
-          <li>Remember that sounds can overlap, so listen carefully for multiple sources</li>
+          <li>Skup się najpierw na identyfikacji cichszych dźwięków, ponieważ są warte więcej punktów</li>
+          <li>Uważaj na swoje zgadywanie - złe odpowiedzi kosztują punkty</li>
+          <li>
+            Rozważ kompromis w dostosowaniu czasu: mniej czasu oznacza więcej punktów, ale mniej czasu na słuchanie
+          </li>
+          <li>Pamiętaj, że dźwięki mogą się nakładać, więc słuchaj uważnie wielu źródeł</li>
         </ul>
       </div>
 
       <div class="rules-section">
-        <h2>Game Over</h2>
+        <h2>Koniec Gry</h2>
         <ul class="rules-list">
-          <li>The game ends after the guessing phase</li>
-          <li>Your final score is displayed</li>
-          <li>A list of all sounds that were played in the session is shown</li>
-          <li>You can start a new game using the "Play Again" button</li>
+          <li>Gra kończy się po fazie zgadywania</li>
+          <li>Twój końcowy wynik jest wyświetlany</li>
+          <li>Pokazana jest lista wszystkich dźwięków, które były odtwarzane w sesji</li>
+          <li>Możesz rozpocząć nową grę używając przycisku "Zagraj Ponownie"</li>
         </ul>
       </div>
       <div id="footer-container"></div>

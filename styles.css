@@ -153,7 +153,7 @@ h1 {
 
 .sound-button {
   background-color: var(--warm-gray);
-  color: var(--charcoal);
+  color: var(--text-dark);
   border: 2px solid var(--charcoal);
   border-radius: 16px;
   font-size: var(--text-sm);
@@ -172,7 +172,7 @@ h1 {
 
 .sound-button:hover {
   background-color: var(--charcoal);
-  color: var(--pure-white);
+  color: var(--text-dark);
   border-color: var(--charcoal);
 }
 
@@ -181,25 +181,19 @@ h1 {
 .sound-button.active {
   background-color: var(--charcoal);
   border-color: var(--charcoal);
-  color: var(--pure-white);
+  color: var(--text-dark);
 }
 
 .sound-button.correct {
   border-color: var(--win-green);
   background-color: var(--win-green-dark);
-  color: var(--pure-white);
+  color: var(--text-dark);
 }
 
 .sound-button.incorrect {
   border-color: var(--error-red);
   background-color: var(--error-red-light);
-  color: var(--pure-white);
-}
-
-.sound-button:active {
-  background-color: var(--lead-hover);
-  color: var(--pure-white);
-  border-color: var(--charcoal);
+  color: var(--text-dark);
 }
 
 .time-adjustment {

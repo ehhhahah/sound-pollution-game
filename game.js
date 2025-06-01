@@ -28,6 +28,9 @@ let gameState = {
   recipients: [] // Array of available recipient groups
 }
 
+// Cache for sound files
+const soundCache = new Map()
+
 /**
  * Toggles visibility of UI elements
  * @param {Object} elements - Object containing element IDs/classes and their desired display states
@@ -103,7 +106,7 @@ function manageSoundElement(sound, shouldPlay) {
     audio.loop = true
 
     // Apply volume adjustment if specified
-    if (sound.volumeAdjustment) {
+    if (sound.volumeAdjustment !== undefined && sound.volumeAdjustment !== null) {
       // Create audio context and gain node if they don't exist
       if (!audio.audioContext) {
         audio.audioContext = new AudioContext()
@@ -113,8 +116,18 @@ function manageSoundElement(sound, shouldPlay) {
         audio.gainNode.connect(audio.audioContext.destination)
       }
 
-      // Apply the volume adjustment
-      audio.gainNode.gain.value = sound.volumeAdjustment
+      // Validate and apply the volume adjustment
+      const volumeAdjustment = parseFloat(sound.volumeAdjustment)
+      if (!isNaN(volumeAdjustment) && volumeAdjustment > 0) {
+        audio.gainNode.gain.value = volumeAdjustment
+      } else {
+        audio.gainNode.gain.value = 1.0 // Default to normal volume for invalid values
+      }
+    } else {
+      // Ensure gain is set to 1.0 when no volume adjustment is specified
+      if (audio.audioContext && audio.gainNode) {
+        audio.gainNode.gain.value = 1.0
+      }
     }
 
     audio.play()
@@ -125,6 +138,7 @@ function manageSoundElement(sound, shouldPlay) {
   } else {
     audio.pause()
     audio.currentTime = 0
+    audio.loop = false
 
     // Remove from active sounds and sound elements
     gameState.activeSounds = gameState.activeSounds.filter((s) => s.pollution !== sound.pollution)
@@ -258,6 +272,13 @@ async function preloadSounds() {
       try {
         // Get a random sound file from the array
         const soundFile = pollution.sound_file[Math.floor(Math.random() * pollution.sound_file.length)]
+
+        // Check if sound is already in cache
+        if (soundCache.has(soundFile)) {
+          gameState.preloadedSounds.set(pollution.pollution, soundCache.get(soundFile))
+          continue
+        }
+
         const audio = new Audio(soundFile)
 
         // For mock audio in tests, handle differently
@@ -271,6 +292,7 @@ async function preloadSounds() {
           // Only add to preloadedSounds if there's no error listener
           if (!audio.listeners || !audio.listeners.error) {
             gameState.preloadedSounds.set(pollution.pollution, audio)
+            soundCache.set(soundFile, audio)
             if (audio.listeners && audio.listeners.canplaythrough) {
               audio.listeners.canplaythrough.forEach((cb) => cb())
             }
@@ -280,12 +302,14 @@ async function preloadSounds() {
 
         // For real audio, set up event listeners and add to preloadedSounds
         gameState.preloadedSounds.set(pollution.pollution, audio)
+        soundCache.set(soundFile, audio)
         audio.addEventListener('canplaythrough', () => {
           console.log(`Sound loaded: ${soundFile}`)
         })
         audio.addEventListener('error', (e) => {
           console.error(`Error loading sound file ${soundFile}:`, e)
           gameState.preloadedSounds.delete(pollution.pollution)
+          soundCache.delete(soundFile)
         })
 
         await audio.load()
@@ -301,6 +325,13 @@ async function preloadSounds() {
       try {
         // Get a random sound file from the array
         const soundFile = tinnitusSound.sound_file[Math.floor(Math.random() * tinnitusSound.sound_file.length)]
+
+        // Check if sound is already in cache
+        if (soundCache.has(soundFile)) {
+          gameState.preloadedSounds.set(tinnitusSound.pollution, soundCache.get(soundFile))
+          continue
+        }
+
         const audio = new Audio(soundFile)
 
         // For mock audio in tests, handle differently
@@ -314,6 +345,7 @@ async function preloadSounds() {
           // Only add to preloadedSounds if there's no error listener
           if (!audio.listeners || !audio.listeners.error) {
             gameState.preloadedSounds.set(tinnitusSound.pollution, audio)
+            soundCache.set(soundFile, audio)
             if (audio.listeners && audio.listeners.canplaythrough) {
               audio.listeners.canplaythrough.forEach((cb) => cb())
             }
@@ -323,12 +355,14 @@ async function preloadSounds() {
 
         // For real audio, set up event listeners and add to preloadedSounds
         gameState.preloadedSounds.set(tinnitusSound.pollution, audio)
+        soundCache.set(soundFile, audio)
         audio.addEventListener('canplaythrough', () => {
           console.log(`Sound loaded: ${soundFile}`)
         })
         audio.addEventListener('error', (e) => {
           console.error(`Error loading sound file ${soundFile}:`, e)
           gameState.preloadedSounds.delete(tinnitusSound.pollution)
+          soundCache.delete(soundFile)
         })
 
         await audio.load()

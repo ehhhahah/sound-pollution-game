@@ -121,6 +121,7 @@ h1 {
   text-align: center;
   word-break: break-word;
   color: var(--text-dark);
+  margin: 0 auto;
 }
 
 .game-button:hover {
@@ -222,6 +223,7 @@ h1 {
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
+  margin: 0 auto;
 }
 
 .primary-button:hover {

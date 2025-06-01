@@ -3,6 +3,9 @@
  * A browser-based game that tests players' ability to identify different types of sound pollution.
  * The game randomly plays sound samples and players must identify them within a time limit.
  * Scoring is based on sound amplitude - quieter sounds are worth more points.
+ *
+ * IMPORTANT: Never hardcode dynamic values like recipient labels or sound names in the HTML.
+ * These should always be set dynamically through JavaScript to maintain flexibility and proper localization.
  */
 
 // Game state management
@@ -344,8 +347,6 @@ async function init() {
  * Plays a random set of sounds at game start and loops them
  */
 function playRandomSounds() {
-  stopAllSounds()
-
   // Store any tinnitus sounds that might be in selectedSounds
   const tinnitusSounds = gameState.selectedSounds.filter((sound) => sound.isTinnitus)
 
@@ -364,6 +365,9 @@ function playRandomSounds() {
       gameState.selectedSounds.push(sound)
     }
   }
+
+  // Stop all currently playing sounds
+  stopAllSounds()
 
   // Play all selected sounds
   gameState.selectedSounds.forEach((sound) => manageSoundElement(sound, true))
@@ -498,16 +502,20 @@ function adjustTime(adjustment) {
  * @returns {string} Formatted recipient labels string
  */
 function formatRecipientLabels(recipients) {
-  if (recipients.length === 0) {
+  if (!recipients?.length) {
     return ''
-  } else if (recipients.length === 1) {
-    return recipients[0].label
+  }
+
+  const formatRecipient = (recipient) => recipient.label.toLowerCase()
+
+  if (recipients.length === 1) {
+    return formatRecipient(recipients[0])
   } else if (recipients.length === 2) {
-    return `${recipients[0].label} i ${recipients[1].label}`
+    return `${formatRecipient(recipients[0])} i ${formatRecipient(recipients[1])}`
   } else {
     const lastRecipient = recipients[recipients.length - 1]
     const otherRecipients = recipients.slice(0, -1)
-    return `${otherRecipients.map((r) => r.label).join(', ')} i ${lastRecipient.label}`
+    return `${otherRecipients.map(formatRecipient).join(', ')} i ${formatRecipient(lastRecipient)}`
   }
 }
 
@@ -533,7 +541,18 @@ function startGuessingPhase() {
   const recipientLabels = formatRecipientLabels(gameState.selectedRecipients)
 
   guessingTitles.forEach((title) => {
-    title.textContent = `Jako osoba ${recipientLabels} słyszę`
+    // Find or create the recipients span
+    let recipientsSpan = title.querySelector('#sessionRecipients')
+    if (!recipientsSpan) {
+      recipientsSpan = document.createElement('span')
+      recipientsSpan.id = 'sessionRecipients'
+      // Insert the span after "Jako osoba"
+      const text = title.textContent
+      title.textContent = 'Jako osoba '
+      title.appendChild(recipientsSpan)
+      title.appendChild(document.createTextNode(' słyszałxm'))
+    }
+    recipientsSpan.textContent = recipientLabels
   })
 
   // Set display styles directly
@@ -596,21 +615,43 @@ function endGuessingPhase() {
   const sessionSounds = document.getElementById('sessionSounds')
   if (sessionSounds) {
     const guessingTitle = sessionSounds.querySelector('.guessing-title')
-    const soundsList = sessionSounds.querySelector('#sessionSoundsList')
-    if (guessingTitle && soundsList) {
-      const recipientLabels = formatRecipientLabels(gameState.selectedRecipients)
-      const soundsText = formatSoundNames(gameState.selectedSounds)
-      guessingTitle.textContent = `Jako osoba ${recipientLabels} słyszę`
-      soundsList.textContent = soundsText
+    if (guessingTitle) {
+      // Find or create the recipients span
+      let recipientsSpan = guessingTitle.querySelector('#sessionRecipients')
+      if (!recipientsSpan) {
+        recipientsSpan = document.createElement('span')
+        recipientsSpan.id = 'sessionRecipients'
+        // Insert the span after "Jako osoba"
+        guessingTitle.textContent = 'Jako osoba '
+        guessingTitle.appendChild(recipientsSpan)
+        guessingTitle.appendChild(document.createTextNode(' słyszałxm '))
+      }
+      recipientsSpan.textContent = formatRecipientLabels(gameState.selectedRecipients)
+
+      // Find or create the sounds list span
+      let soundsList = guessingTitle.querySelector('#sessionSoundsList')
+      if (!soundsList) {
+        soundsList = document.createElement('span')
+        soundsList.id = 'sessionSoundsList'
+        guessingTitle.appendChild(soundsList)
+      }
+      soundsList.textContent = formatSoundNames(gameState.selectedSounds)
     }
   }
 
   // Update other guessing titles with recipient labels only
   const otherGuessingTitles = document.querySelectorAll('.guessing-title:not(#sessionSounds .guessing-title)')
-  const recipientLabels = formatRecipientLabels(gameState.selectedRecipients)
-
   otherGuessingTitles.forEach((title) => {
-    title.textContent = `Jako osoba ${recipientLabels} słyszę`
+    let recipientsSpan = title.querySelector('#sessionRecipients')
+    if (!recipientsSpan) {
+      recipientsSpan = document.createElement('span')
+      recipientsSpan.id = 'sessionRecipients'
+      // Insert the span after "Jako osoba"
+      title.textContent = 'Jako osoba '
+      title.appendChild(recipientsSpan)
+      title.appendChild(document.createTextNode(' słyszałxm'))
+    }
+    recipientsSpan.textContent = formatRecipientLabels(gameState.selectedRecipients)
   })
 }
 
@@ -846,7 +887,7 @@ function createSoundGrid() {
  */
 function formatSoundNames(sounds) {
   if (!sounds?.length) {
-    return 'Brak odtworzonych dźwięków'
+    return 'Brak dźwięków'
   }
 
   const formatSound = (sound) => sound.pollution.replace(/_/g, ' ').toLowerCase()
@@ -891,18 +932,21 @@ function endGame() {
   if (gamePlay) gamePlay.style.display = 'none'
   if (soundGrid) soundGrid.style.display = 'none'
 
-  // Update game over screen with selected recipients
-  updateGameOverScreen()
-
   // Update session sounds display
   if (sessionSounds) {
-    const soundsList = sessionSounds.querySelector('#sessionSoundsList')
-    if (soundsList) {
-      if (gameState.selectedSounds.length > 0) {
-        soundsList.textContent = formatSoundNames(gameState.selectedSounds)
-      } else {
-        soundsList.textContent = 'Brak dźwięków'
+    const guessingTitle = sessionSounds.querySelector('.guessing-title')
+    if (guessingTitle) {
+      // Set the base text
+      guessingTitle.textContent = 'Jako osoba słyszałxm '
+
+      // Add the sounds list
+      let soundsList = guessingTitle.querySelector('#sessionSoundsList')
+      if (!soundsList) {
+        soundsList = document.createElement('span')
+        soundsList.id = 'sessionSoundsList'
+        guessingTitle.appendChild(soundsList)
       }
+      soundsList.textContent = formatSoundNames(gameState.selectedSounds)
     }
   }
 }

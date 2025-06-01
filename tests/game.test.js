@@ -717,7 +717,7 @@ describe('Transition State', function () {
           <h2>Game Over!</h2>
           <p>Final Score: <span id="finalScore">0</span></p>
           <div id="sessionSounds" class="session-sounds">
-            <h2 class="guessing-title">Jako osoba słyszę <span id="sessionSoundsList"></span></h2>
+            <h2 class="guessing-title">Jako osoba słyszałxm <span id="sessionSoundsList"></span></h2>
           </div>
           <button id="playAgain">Play Again</button>
         </div>
@@ -1704,7 +1704,7 @@ describe('Session Sounds Display', function () {
           <h2>Game Over!</h2>
           <p>Final Score: <span id="finalScore">0</span></p>
           <div id="sessionSounds" class="session-sounds">
-            <h2 class="guessing-title">Jako osoba słyszę <span id="sessionSoundsList"></span></h2>
+            <h2 class="guessing-title">Jako osoba słyszałxm <span id="sessionSoundsList"></span></h2>
           </div>
           <button id="playAgain">Play Again</button>
         </div>
@@ -1748,7 +1748,7 @@ describe('Session Sounds Display', function () {
     ]
     window.gameFunctions.endGame()
     const guessingTitle = document.querySelector('#sessionSounds .guessing-title')
-    expect(guessingTitle.textContent).to.equal('Jako osoba słyszę car horn')
+    expect(guessingTitle.textContent).to.equal('Jako osoba słyszałxm car horn')
   })
 
   it('should handle special characters in sound names', function () {
@@ -1850,9 +1850,9 @@ describe('Format Functions', function () {
 
   describe('formatSoundNames', function () {
     it('should handle null/undefined sounds', function () {
-      expect(window.gameFunctions.formatSoundNames(null)).to.equal('Brak odtworzonych dźwięków')
-      expect(window.gameFunctions.formatSoundNames(undefined)).to.equal('Brak odtworzonych dźwięków')
-      expect(window.gameFunctions.formatSoundNames([])).to.equal('Brak odtworzonych dźwięków')
+      expect(window.gameFunctions.formatSoundNames(null)).to.equal('Brak dźwięków')
+      expect(window.gameFunctions.formatSoundNames(undefined)).to.equal('Brak dźwięków')
+      expect(window.gameFunctions.formatSoundNames([])).to.equal('Brak dźwięków')
     })
 
     it('should handle single sound', function () {

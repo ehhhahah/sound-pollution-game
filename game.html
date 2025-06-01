@@ -64,7 +64,7 @@
                 <button id="increaseTime" class="game-button time-button">+10s (Mniej Punktów)</button>
               </div>
               <!-- Grid of sound buttons for guessing -->
-              <h2 class="guessing-title" style="display: none">Jako osoba słyszę</h2>
+              <h2 class="guessing-title" style="display: none">Jako osoba słyszałxm</h2>
               <div class="sound-grid" style="display: none">
                 <!-- Sound buttons will be dynamically added here -->
               </div>
@@ -86,12 +86,13 @@
 
             <!-- Game over screen with final score -->
             <div id="gameOver" class="game-over" style="display: none">
-              <h2>Koniec Gry!</h2>
               <div class="score-display">
-                <p>Końcowy Wynik: <span id="finalScore">0</span></p>
+                <p>Wynik: <span id="finalScore">0</span></p>
               </div>
               <div id="sessionSounds" class="session-sounds">
-                <h2 class="guessing-title">Jako osoba słyszę <span id="sessionSoundsList"></span></h2>
+                <h2 class="guessing-title">
+                  Jako osoba <span id="sessionRecipients"></span> słyszałxm <span id="sessionSoundsList"></span>.
+                </h2>
               </div>
               <button id="playAgain" class="primary-button">
                 <svg

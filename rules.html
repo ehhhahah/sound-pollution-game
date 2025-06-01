@@ -52,7 +52,8 @@
         <h2>Fazy Gry</h2>
         <h3>Faza 1: Słuchanie (30 sekund)</h3>
         <ul class="rules-list">
-          <li>Wiele próbek zanieczyszczenia hałasem będzie odtwarzanych jednocześnie</li>
+          <li>Losowo wybrane próbki zanieczyszczenia hałasem będą odtwarzane jednocześnie</li>
+          <li>Liczba dźwięków jest losowa (od 1 do 5)</li>
           <li>Dźwięki będą odtwarzane w pętli podczas tej fazy</li>
           <li>Skup się na identyfikacji jak największej liczby różnych dźwięków</li>
           <li>Możesz dostosować czas słuchania za pomocą przycisków regulacji czasu</li>
@@ -64,6 +65,7 @@
           <li>Musisz zidentyfikować dźwięki, które usłyszałeś, spośród dostępnych opcji</li>
           <li>Kliknij na dźwięki, które Twoim zdaniem były odtwarzane</li>
           <li>Kliknij "Zatwierdź Odpowiedź" gdy skończysz lub poczekaj na koniec licznika</li>
+          <li>Każdy dźwięk możesz zgadywać tylko raz</li>
         </ul>
       </div>
 
@@ -74,6 +76,7 @@
           <li>Cichsze dźwięki są warte więcej punktów (do 100 punktów)</li>
           <li>Bardzo głośne dźwięki mają minimalną wartość 10 punktów</li>
           <li>Nieprawidłowe zgadywanie skutkuje karą 20 punktów</li>
+          <li>Każdy dźwięk można zgadnąć tylko raz - powtórne zgadywanie nie daje dodatkowych punktów</li>
         </ul>
 
         <div class="rules-important">
@@ -95,6 +98,7 @@
           <li><strong>Przyciski Dźwięków:</strong> Kliknij, aby zidentyfikować dźwięki podczas fazy zgadywania</li>
           <li><strong>Zatwierdź Odpowiedź:</strong> Prześlij swoje identyfikacje dźwięków</li>
           <li><strong>Zagraj Ponownie:</strong> Rozpocznij nową grę po zakończeniu</li>
+          <li><strong>Spacja:</strong> Możesz użyć spacji do ponownego odtworzenia dźwięków podczas fazy słuchania</li>
         </ul>
       </div>
 
@@ -107,6 +111,7 @@
             Rozważ kompromis w dostosowaniu czasu: mniej czasu oznacza więcej punktów, ale mniej czasu na słuchanie
           </li>
           <li>Pamiętaj, że dźwięki mogą się nakładać, więc słuchaj uważnie wielu źródeł</li>
+          <li>Możesz użyć spacji, aby ponownie odtworzyć dźwięki podczas fazy słuchania</li>
         </ul>
       </div>
 
@@ -116,11 +121,12 @@
           <li>Gra kończy się po fazie zgadywania</li>
           <li>Twój końcowy wynik jest wyświetlany</li>
           <li>Pokazana jest lista wszystkich dźwięków, które były odtwarzane w sesji</li>
+          <li>Wyświetlane są wybrane grupy odbiorców</li>
           <li>Możesz rozpocząć nową grę używając przycisku "Zagraj Ponownie"</li>
         </ul>
       </div>
-      <div id="footer-container"></div>
     </div>
+    <div id="footer-container"></div>
     <script src="components/loadComponents.js"></script>
   </body>
 </html>

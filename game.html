@@ -23,7 +23,7 @@
             <div id="gameControls" class="game-controls">
               <!-- Recipient selection -->
               <div class="recipient-selection">
-                <h3>Będę słuchać jako osoba</h3>
+                <h2>Będę słuchać jako osoba</h2>
                 <div id="recipientCheckboxes">
                   <!-- Recipient checkboxes will be dynamically added here -->
                 </div>
@@ -60,11 +60,11 @@
               </div>
               <!-- Time adjustment controls -->
               <div id="timeAdjustment" class="time-adjustment">
-                <button id="decreaseTime" class="game-button time-button">-10s (Więcej Punktów)</button>
-                <button id="increaseTime" class="game-button time-button">+10s (Mniej Punktów)</button>
+                <button id="decreaseTime" class="game-button time-button">-</button>
+                <button id="increaseTime" class="game-button time-button">+</button>
               </div>
               <!-- Grid of sound buttons for guessing -->
-              <h2 class="guessing-title" style="display: none">Jako osoba słyszałxm</h2>
+              <h2 class="guessing-title" style="display: none">Jako osoba słyszałxś</h2>
               <div class="sound-grid" style="display: none">
                 <!-- Sound buttons will be dynamically added here -->
               </div>
@@ -91,7 +91,7 @@
               </div>
               <div id="sessionSounds" class="session-sounds">
                 <h2 class="guessing-title">
-                  Jako osoba <span id="sessionRecipients"></span> słyszałxm <span id="sessionSoundsList"></span>.
+                  Jako osoba <span id="sessionRecipients"></span> słyszałxś <span id="sessionSoundsList"></span>.
                 </h2>
               </div>
               <button id="playAgain" class="primary-button">
@@ -112,8 +112,8 @@
           </div>
         </div>
       </main>
-      <div id="footer-container"></div>
     </div>
+    <div id="footer-container"></div>
     <script src="components/loadComponents.js"></script>
     <script src="game.js"></script>
   </body>

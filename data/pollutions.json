@@ -3,7 +3,9 @@
         "pollution": "ruch_uliczny",
         "amplitude": "45-75 dB",
         "frequency": "stała",
-        "sound_file": "sounds/road_traffic.ogg",
+        "sound_file": [
+            "sounds/road_traffic.ogg"
+        ],
         "sound_file_source": "https://freesound.org/people/kyles/sounds/450558/",
         "affects": [
             "ludzie",
@@ -21,7 +23,9 @@
         "pollution": "samoloty",
         "amplitude": "60-150 dB",
         "frequency": "zmienna, zależna od bliskości lotnisk",
-        "sound_file": "sounds/airplane.ogg",
+        "sound_file": [
+            "sounds/airplane.ogg"
+        ],
         "sound_file_source": "https://freesound.org/people/TRP/sounds/573806/",
         "affects": [
             "ludzie mieszkający w pobliżu lotnisk",
@@ -37,7 +41,9 @@
         "pollution": "kolej",
         "amplitude": "70-90 dB",
         "frequency": "regularna, zależna od rozkładu jazdy",
-        "sound_file": "sounds/railway.ogg",
+        "sound_file": [
+            "sounds/railway.ogg"
+        ],
         "sound_file_source": "https://freesound.org/people/miastodzwiekow/sounds/113178/",
         "affects": [
             "mieszkańcy w pobliżu torów",
@@ -53,7 +59,9 @@
         "pollution": "przemysł",
         "amplitude": "60-134 dB",
         "frequency": "ciągła podczas godzin pracy",
-        "sound_file": "sounds/factory.ogg",
+        "sound_file": [
+            "sounds/factory.ogg"
+        ],
         "sound_file_source": "https://freesound.org/people/viertelnachvier/sounds/249637/",
         "affects": [
             "pracownicy",
@@ -70,7 +78,9 @@
         "pollution": "spokojny_ruch_pieszych",
         "amplitude": "30-50 dB",
         "frequency": "stała",
-        "sound_file": "sounds/calm_pedestrian_traffic.ogg",
+        "sound_file": [
+            "sounds/calm_pedestrian_traffic.ogg"
+        ],
         "sound_file_source": "https://freesound.org/people/felix.blume/sounds/705050/",
         "affects": [
             "piesi",

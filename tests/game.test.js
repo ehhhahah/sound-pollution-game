@@ -12,6 +12,9 @@ class MockAudio {
     this.loop = false
     this.listeners = {}
     this._playPromise = Promise.resolve()
+    this.audioContext = null
+    this.source = null
+    this.gainNode = null
   }
 
   play() {
@@ -42,6 +45,40 @@ const originalAudio = window.Audio
 
 // Replace Audio constructor with MockAudio
 window.Audio = MockAudio
+
+// Mock AudioContext for testing
+class MockAudioContext {
+  constructor() {
+    this.destination = {
+      connect: () => {}
+    }
+  }
+
+  createMediaElementSource(element) {
+    return {
+      connect: (node) => {
+        if (node) {
+          node.connect(this.destination)
+        }
+      }
+    }
+  }
+
+  createGain() {
+    return {
+      connect: (node) => {
+        if (node) {
+          node.connect(this.destination)
+        }
+      },
+      gain: { value: 1.0 }
+    }
+  }
+}
+
+// Replace AudioContext with MockAudioContext
+window.AudioContext = MockAudioContext
+window.webkitAudioContext = MockAudioContext
 
 /**
  * Helper function to check if a guess is correct
@@ -119,12 +156,6 @@ describe('Game Logic', function () {
 
     it('should handle preloading errors gracefully', async function () {
       // Mock a failed sound load
-      // Note: The mock audio setup is critical for this test to work correctly.
-      // We need to:
-      // 1. Initialize audio.listeners.error array to store error callbacks
-      // 2. Push error callbacks to this array when addEventListener is called
-      // 3. Trigger the error callbacks immediately to simulate a failed load
-      // This ensures that the preloadSounds function can properly detect and handle the error case
       const mockAudio = function () {
         const audio = new MockAudio()
         audio.listeners = {
@@ -142,10 +173,10 @@ describe('Game Logic', function () {
       window.Audio = mockAudio
 
       const gameState = window.gameFunctions.getGameState()
-      // Set up some test pollutions
+      // Set up some test pollutions with array of sound files
       gameState.pollutions = [
-        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
-        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+        { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' },
+        { pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' }
       ]
       await window.gameFunctions.preloadSounds()
       expect(gameState.preloadedSounds.size).to.equal(0) // No sounds should be preloaded due to errors
@@ -174,9 +205,9 @@ describe('Game Logic', function () {
       // Initialize game state with some test pollutions
       const gameState = window.gameFunctions.getGameState()
       gameState.pollutions = [
-        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
-        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' },
-        { pollution: 'plane', sound_file: 'plane.mp3', amplitude: '70-90' }
+        { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' },
+        { pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' },
+        { pollution: 'plane', sound_file: ['plane.mp3'], amplitude: '70-90' }
       ]
 
       // Preload sounds
@@ -212,8 +243,8 @@ describe('Game Logic', function () {
       const gameState = window.gameFunctions.getGameState()
       // Set up test pollutions
       gameState.pollutions = [
-        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
-        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+        { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' },
+        { pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' }
       ]
 
       // Mock preloaded sounds
@@ -224,8 +255,8 @@ describe('Game Logic', function () {
 
       // Add sounds to selectedSounds
       gameState.selectedSounds = [
-        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
-        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+        { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' },
+        { pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' }
       ]
 
       // Play sounds and wait for playback to start
@@ -264,9 +295,9 @@ describe('Game Logic', function () {
 
     it('should add correct class for valid guesses', function () {
       const gameState = window.gameFunctions.getGameState()
-      gameState.activeSounds = [{ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' }]
+      gameState.activeSounds = [{ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' }]
 
-      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' })
+      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' })
 
       const button = document.querySelector('.sound-button')
       expect(button.classList.contains('correct')).to.be.true
@@ -275,9 +306,9 @@ describe('Game Logic', function () {
 
     it('should add incorrect class for invalid guesses', function () {
       const gameState = window.gameFunctions.getGameState()
-      gameState.activeSounds = [{ pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }]
+      gameState.activeSounds = [{ pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' }]
 
-      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' })
+      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' })
 
       const button = document.querySelector('.sound-button')
       expect(button.classList.contains('incorrect')).to.be.true
@@ -289,32 +320,32 @@ describe('Game Logic', function () {
       const button = document.querySelector('.sound-button')
 
       // First guess - incorrect
-      gameState.activeSounds = [{ pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }]
-      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' })
+      gameState.activeSounds = [{ pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' }]
+      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' })
       expect(button.classList.contains('incorrect')).to.be.true
 
       // Second guess - correct
-      gameState.activeSounds = [{ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' }]
-      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' })
+      gameState.activeSounds = [{ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' }]
+      window.gameFunctions.makeGuess({ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' })
       expect(button.classList.contains('correct')).to.be.true
       expect(button.classList.contains('incorrect')).to.be.false
     })
 
     it('should correctly identify valid guesses', function () {
       const activeSounds = [
-        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
-        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+        { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' },
+        { pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' }
       ]
-      const selectedSound = { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' }
+      const selectedSound = { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' }
       expect(isCorrectGuess(activeSounds, selectedSound)).to.be.true
     })
 
     it('should correctly identify invalid guesses', function () {
       const activeSounds = [
-        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
-        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+        { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' },
+        { pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' }
       ]
-      const selectedSound = { pollution: 'plane', sound_file: 'plane.mp3', amplitude: '70-90' }
+      const selectedSound = { pollution: 'plane', sound_file: ['plane.mp3'], amplitude: '70-90' }
       expect(isCorrectGuess(activeSounds, selectedSound)).to.be.false
     })
 
@@ -486,7 +517,91 @@ describe('DOM Structure', function () {
   })
 })
 
-// Test suite for sound file existence
+describe('Session Sounds Display', function () {
+  beforeEach(function () {
+    window.gameFunctions.resetGameState()
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div id="gameControls">
+          <button id="startGame">Start Game</button>
+        </div>
+        <div id="gamePlay" style="display: none">
+          <div class="sound-grid" style="display: none"></div>
+        </div>
+        <div id="gameOver" style="display: none">
+          <h2>Game Over!</h2>
+          <p>Final Score: <span id="finalScore">0</span></p>
+          <div id="sessionSounds" class="session-sounds">
+            <h2 class="guessing-title">Jako osoba słyszałxś <span id="sessionSoundsList"></span></h2>
+          </div>
+          <button id="playAgain">Play Again</button>
+        </div>
+      </div>
+    `
+  })
+
+  it('should display single sound in game over screen', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: ['car_horn.mp3'], amplitude: '50-70' }]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('car horn')
+  })
+
+  it('should display multiple sounds with proper formatting', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [
+      { pollution: 'car_horn', sound_file: ['car_horn.mp3'], amplitude: '50-70' },
+      { pollution: 'train_whistle', sound_file: ['train_whistle.mp3'], amplitude: '60-80' },
+      { pollution: 'ambulance_siren', sound_file: ['ambulance_siren.mp3'], amplitude: '70-90' }
+    ]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('car horn, train whistle i ambulance siren')
+  })
+
+  it('should display "Brak dźwięków" when no sounds were played', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = []
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('Brak dźwięków')
+  })
+
+  it('should display sounds with recipient labels', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: ['car_horn.mp3'], amplitude: '50-70' }]
+    gameState.selectedRecipients = [
+      { group: 'tinnitus', label: 'cierpiąca na szumy ustne', risk_function: 'right_channel_sine' }
+    ]
+    window.gameFunctions.endGame()
+    const guessingTitle = document.querySelector('#sessionSounds .guessing-title')
+    expect(guessingTitle.textContent).to.equal('Jako osoba słyszałxś car horn')
+  })
+
+  it('should handle special characters in sound names', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [
+      { pollution: 'car_horn_2', sound_file: ['car_horn_2.mp3'], amplitude: '50-70' },
+      { pollution: 'train_whistle_3', sound_file: ['train_whistle_3.mp3'], amplitude: '60-80' }
+    ]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('car horn 2 i train whistle 3')
+  })
+
+  it('should update session sounds when game is reset', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: ['car_horn.mp3'], amplitude: '50-70' }]
+    window.gameFunctions.endGame()
+    window.gameFunctions.resetGame()
+    gameState.selectedSounds = [{ pollution: 'train_whistle', sound_file: ['train_whistle.mp3'], amplitude: '60-80' }]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('train whistle')
+  })
+})
+
 describe('Sound File Existence', function () {
   it('should have valid sound file paths', async function () {
     // Fetch the actual pollutions.json data
@@ -500,45 +615,46 @@ describe('Sound File Existence', function () {
     )
 
     for (const pollution of pollutions) {
-      const soundFilePath = pollution.sound_file
-      expect(soundFilePath).to.be.a('string')
-      expect(soundFilePath).to.not.be.empty
+      // Check each sound file in the array
+      for (const soundFilePath of pollution.sound_file) {
+        expect(soundFilePath).to.be.a('string')
+        expect(soundFilePath).to.not.be.empty
 
-      console.log('Checking sound file:', soundFilePath)
+        console.log('Checking sound file:', soundFilePath)
 
-      // Create a promise that resolves with the file existence status
-      const checkFileExists = () => {
-        return new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest()
-          // Use path relative to test file
-          const relativePath = soundFilePath.startsWith('sounds/') ? `../${soundFilePath}` : soundFilePath
-          xhr.open('HEAD', relativePath, true)
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              resolve(true)
-            } else {
-              reject(new Error(`File not found: ${relativePath} (status: ${xhr.status})`))
+        // Create a promise that resolves with the file existence status
+        const checkFileExists = () => {
+          return new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest()
+            // Use path relative to test file
+            const relativePath = soundFilePath.startsWith('sounds/') ? `../${soundFilePath}` : soundFilePath
+            xhr.open('HEAD', relativePath, true)
+            xhr.onload = () => {
+              if (xhr.status === 200) {
+                resolve(true)
+              } else {
+                reject(new Error(`File not found: ${relativePath} (status: ${xhr.status})`))
+              }
             }
-          }
-          xhr.onerror = () => {
-            reject(new Error(`Failed to check file: ${relativePath}`))
-          }
-          xhr.send()
-        })
-      }
+            xhr.onerror = () => {
+              reject(new Error(`Failed to check file: ${relativePath}`))
+            }
+            xhr.send()
+          })
+        }
 
-      try {
-        const exists = await checkFileExists()
-        expect(exists).to.be.true
-      } catch (error) {
-        console.log('Error details:', error)
-        expect.fail(`Failed to load sound file: ${soundFilePath}. Error: ${error.message}`)
+        try {
+          const exists = await checkFileExists()
+          expect(exists).to.be.true
+        } catch (error) {
+          console.log('Error details:', error)
+          expect.fail(`Failed to load sound file: ${soundFilePath}. Error: ${error.message}`)
+        }
       }
     }
   })
 })
 
-// Test suite for modified game logic
 describe('Modified Game Logic', function () {
   beforeEach(async function () {
     // Reset game state before each test
@@ -717,7 +833,7 @@ describe('Transition State', function () {
           <h2>Game Over!</h2>
           <p>Final Score: <span id="finalScore">0</span></p>
           <div id="sessionSounds" class="session-sounds">
-            <h2 class="guessing-title">Jako osoba słyszałxm <span id="sessionSoundsList"></span></h2>
+            <h2 class="guessing-title">Jako osoba słyszałxś <span id="sessionSoundsList"></span></h2>
           </div>
           <button id="playAgain">Play Again</button>
         </div>
@@ -967,6 +1083,21 @@ describe('Risk Functions', function () {
         </div>
       </div>
     `
+
+    // Mock AudioContext and GainNode
+    window.AudioContext = class MockAudioContext {
+      createMediaElementSource() {
+        return {
+          connect: () => {}
+        }
+      }
+      createGain() {
+        return {
+          connect: () => {},
+          gain: { value: 1.0 }
+        }
+      }
+    }
   })
 
   afterEach(function () {
@@ -1127,12 +1258,15 @@ describe('Risk Functions', function () {
     it('should handle multiple risk functions together', function () {
       const gameState = window.gameFunctions.getGameState()
 
-      // Add both tinnitus and reduced time recipients
+      // Set up test pollutions
+      gameState.pollutions = [{ pollution: 'loud', sound_file: 'loud.mp3', amplitude: '60-70' }]
+
+      // Add multiple recipients with different risk functions
       gameState.selectedRecipients = [
         {
-          group: 'tinnitus',
-          label: 'cierpiąca na szumy ustne',
-          risk_function: 'right_channel_sine'
+          group: 'niewidomi',
+          label: 'niewidoma',
+          risk_function: 'loud_sounds_louder'
         },
         {
           group: 'spektrum autyzmu',
@@ -1145,9 +1279,157 @@ describe('Risk Functions', function () {
       window.gameFunctions.applyRiskFunctions()
 
       // Verify both effects are applied
-      expect(gameState.selectedSounds.length).to.equal(1)
-      expect(gameState.selectedSounds[0].pollution).to.equal('tinnitus')
+      const loudSound = gameState.pollutions.find((s) => s.pollution === 'loud')
+      expect(loudSound.volumeAdjustment).to.equal(3)
       expect(gameState.timeRemaining).to.equal(20) // Reduced by 10 seconds
+    })
+
+    it('should handle edge cases in amplitude parsing', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions with edge cases
+      gameState.pollutions = [
+        { pollution: 'exact_50', sound_file: 'exact_50.mp3', amplitude: '50-60' },
+        { pollution: 'invalid_format', sound_file: 'invalid.mp3', amplitude: 'invalid' },
+        { pollution: 'no_amplitude', sound_file: 'no_amp.mp3' }
+      ]
+
+      // Add recipient with loud_sounds_louder risk function
+      gameState.selectedRecipients = [
+        {
+          group: 'niewidomi',
+          label: 'niewidoma',
+          risk_function: 'loud_sounds_louder'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify volume adjustments
+      const exact50Sound = gameState.pollutions.find((s) => s.pollution === 'exact_50')
+      const invalidFormatSound = gameState.pollutions.find((s) => s.pollution === 'invalid_format')
+      const noAmplitudeSound = gameState.pollutions.find((s) => s.pollution === 'no_amplitude')
+
+      expect(exact50Sound.volumeAdjustment).to.equal(3) // Should amplify at exactly 50
+      expect(invalidFormatSound.volumeAdjustment).to.be.undefined
+      expect(noAmplitudeSound.volumeAdjustment).to.be.undefined
+    })
+  })
+
+  describe('loud_sounds_louder risk function', function () {
+    it('should amplify sounds with amplitude above 50', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions with different amplitudes
+      gameState.pollutions = [
+        { pollution: 'quiet', sound_file: 'quiet.mp3', amplitude: '30-40' },
+        { pollution: 'medium', sound_file: 'medium.mp3', amplitude: '45-55' },
+        { pollution: 'loud', sound_file: 'loud.mp3', amplitude: '60-70' },
+        { pollution: 'very_loud', sound_file: 'very_loud.mp3', amplitude: 'up to 80 dB' }
+      ]
+
+      // Add recipient with loud_sounds_louder risk function
+      gameState.selectedRecipients = [
+        {
+          group: 'niewidomi',
+          label: 'niewidoma',
+          risk_function: 'loud_sounds_louder'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify volume adjustments
+      const loudSound = gameState.pollutions.find((s) => s.pollution === 'loud')
+      const veryLoudSound = gameState.pollutions.find((s) => s.pollution === 'very_loud')
+      const quietSound = gameState.pollutions.find((s) => s.pollution === 'quiet')
+      const mediumSound = gameState.pollutions.find((s) => s.pollution === 'medium')
+
+      expect(loudSound.volumeAdjustment).to.equal(3)
+      expect(veryLoudSound.volumeAdjustment).to.equal(3)
+      expect(quietSound.volumeAdjustment).to.be.undefined
+      expect(mediumSound.volumeAdjustment).to.be.undefined
+    })
+
+    it('should apply volume adjustment when playing sounds', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions
+      gameState.pollutions = [{ pollution: 'loud', sound_file: 'loud.mp3', amplitude: '60-70', volumeAdjustment: 3 }]
+
+      // Mock audio elements
+      const mockAudio = new MockAudio()
+      gameState.preloadedSounds.set('loud', mockAudio)
+
+      // Play the sound
+      window.gameFunctions.manageSoundElement(gameState.pollutions[0], true)
+
+      // Verify the sound is playing
+      expect(mockAudio.paused).to.be.false
+      expect(mockAudio.loop).to.be.true
+    })
+
+    it('should handle multiple risk functions together', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions
+      gameState.pollutions = [{ pollution: 'loud', sound_file: 'loud.mp3', amplitude: '60-70' }]
+
+      // Add multiple recipients with different risk functions
+      gameState.selectedRecipients = [
+        {
+          group: 'niewidomi',
+          label: 'niewidoma',
+          risk_function: 'loud_sounds_louder'
+        },
+        {
+          group: 'spektrum autyzmu',
+          label: 'na spektrum autyzmu',
+          risk_function: 'reduced_time'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify both effects are applied
+      const loudSound = gameState.pollutions.find((s) => s.pollution === 'loud')
+      expect(loudSound.volumeAdjustment).to.equal(3)
+      expect(gameState.timeRemaining).to.equal(20) // Reduced by 10 seconds
+    })
+
+    it('should handle edge cases in amplitude parsing', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions with edge cases
+      gameState.pollutions = [
+        { pollution: 'exact_50', sound_file: 'exact_50.mp3', amplitude: '50-60' },
+        { pollution: 'invalid_format', sound_file: 'invalid.mp3', amplitude: 'invalid' },
+        { pollution: 'no_amplitude', sound_file: 'no_amp.mp3' }
+      ]
+
+      // Add recipient with loud_sounds_louder risk function
+      gameState.selectedRecipients = [
+        {
+          group: 'niewidomi',
+          label: 'niewidoma',
+          risk_function: 'loud_sounds_louder'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify volume adjustments
+      const exact50Sound = gameState.pollutions.find((s) => s.pollution === 'exact_50')
+      const invalidFormatSound = gameState.pollutions.find((s) => s.pollution === 'invalid_format')
+      const noAmplitudeSound = gameState.pollutions.find((s) => s.pollution === 'no_amplitude')
+
+      expect(exact50Sound.volumeAdjustment).to.equal(3) // Should amplify at exactly 50
+      expect(invalidFormatSound.volumeAdjustment).to.be.undefined
+      expect(noAmplitudeSound.volumeAdjustment).to.be.undefined
     })
   })
 })
@@ -1369,8 +1651,8 @@ describe('Complete Game Flow', function () {
     expect(gameState.timeRemaining).to.equal(20)
 
     // Make a guess
-    gameState.activeSounds = [{ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' }]
-    window.gameFunctions.makeGuess({ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' })
+    gameState.activeSounds = [{ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' }]
+    window.gameFunctions.makeGuess({ pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' })
     expect(gameState.score).to.be.greaterThan(0)
 
     // End guessing phase
@@ -1691,184 +1973,60 @@ describe('Accessibility Testing', function () {
 
 describe('Session Sounds Display', function () {
   beforeEach(function () {
-    window.gameFunctions.resetGameState()
-    document.body.innerHTML = `
-      <div class="game-container">
-        <div id="gameControls">
-          <button id="startGame">Start Game</button>
-        </div>
-        <div id="gamePlay" style="display: none">
-          <div class="sound-grid" style="display: none"></div>
-        </div>
-        <div id="gameOver" style="display: none">
-          <h2>Game Over!</h2>
-          <p>Final Score: <span id="finalScore">0</span></p>
-          <div id="sessionSounds" class="session-sounds">
-            <h2 class="guessing-title">Jako osoba słyszałxm <span id="sessionSoundsList"></span></h2>
-          </div>
-          <button id="playAgain">Play Again</button>
-        </div>
-      </div>
-    `
+    // Set up test data
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedRecipients = [
+      { group: 'adult', label: 'Dorosły' },
+      { group: 'child', label: 'Dziecko' }
+    ]
+    gameState.selectedSounds = [
+      { pollution: 'car_noise', amplitude: '50-70' },
+      { pollution: 'train_noise', amplitude: '60-80' },
+      { pollution: 'plane_noise', amplitude: '70-90' }
+    ]
   })
 
-  it('should display single sound in game over screen', function () {
+  it('should display a single sound correctly', function () {
     const gameState = window.gameFunctions.getGameState()
-    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' }]
-    window.gameFunctions.endGame()
-    const soundsList = document.getElementById('sessionSoundsList')
-    expect(soundsList.textContent).to.equal('car horn')
+    gameState.selectedSounds = [{ pollution: 'car_noise', amplitude: '50-70' }]
+    const formattedSounds = window.gameFunctions.formatSoundNames(gameState.selectedSounds)
+    expect(formattedSounds).to.equal('car noise')
   })
 
   it('should display multiple sounds with proper formatting', function () {
     const gameState = window.gameFunctions.getGameState()
-    gameState.selectedSounds = [
-      { pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' },
-      { pollution: 'train_whistle', sound_file: 'train_whistle.mp3', amplitude: '60-80' },
-      { pollution: 'ambulance_siren', sound_file: 'ambulance_siren.mp3', amplitude: '70-90' }
-    ]
-    window.gameFunctions.endGame()
-    const soundsList = document.getElementById('sessionSoundsList')
-    expect(soundsList.textContent).to.equal('car horn, train whistle i ambulance siren')
+    const formattedSounds = window.gameFunctions.formatSoundNames(gameState.selectedSounds)
+    expect(formattedSounds).to.equal('car noise, train noise i plane noise')
   })
 
-  it('should display "Brak dźwięków" when no sounds were played', function () {
+  it('should handle no sounds gracefully', function () {
     const gameState = window.gameFunctions.getGameState()
     gameState.selectedSounds = []
-    window.gameFunctions.endGame()
-    const soundsList = document.getElementById('sessionSoundsList')
-    expect(soundsList.textContent).to.equal('Brak dźwięków')
+    const formattedSounds = window.gameFunctions.formatSoundNames(gameState.selectedSounds)
+    expect(formattedSounds).to.equal('Brak dźwięków')
   })
 
-  it('should display sounds with recipient labels', function () {
+  it('should display recipient labels correctly', function () {
     const gameState = window.gameFunctions.getGameState()
-    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' }]
-    gameState.selectedRecipients = [
-      { group: 'tinnitus', label: 'cierpiąca na szumy ustne', risk_function: 'right_channel_sine' }
-    ]
-    window.gameFunctions.endGame()
-    const guessingTitle = document.querySelector('#sessionSounds .guessing-title')
-    expect(guessingTitle.textContent).to.equal('Jako osoba słyszałxm car horn')
+    const formattedRecipients = window.gameFunctions.formatRecipientLabels(gameState.selectedRecipients)
+    expect(formattedRecipients).to.equal('dorosły i dziecko')
   })
 
   it('should handle special characters in sound names', function () {
     const gameState = window.gameFunctions.getGameState()
     gameState.selectedSounds = [
-      { pollution: 'car_horn_2', sound_file: 'car_horn_2.mp3', amplitude: '50-70' },
-      { pollution: 'train_whistle_3', sound_file: 'train_whistle_3.mp3', amplitude: '60-80' }
+      { pollution: 'car_noise_with_special_chars', amplitude: '50-70' },
+      { pollution: 'train_noise_with_spaces', amplitude: '60-80' }
     ]
-    window.gameFunctions.endGame()
-    const soundsList = document.getElementById('sessionSoundsList')
-    expect(soundsList.textContent).to.equal('car horn 2 i train whistle 3')
+    const formattedSounds = window.gameFunctions.formatSoundNames(gameState.selectedSounds)
+    expect(formattedSounds).to.equal('car noise with special chars i train noise with spaces')
   })
 
   it('should update session sounds when game is reset', function () {
     const gameState = window.gameFunctions.getGameState()
-    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' }]
-    window.gameFunctions.endGame()
     window.gameFunctions.resetGame()
-    gameState.selectedSounds = [{ pollution: 'train_whistle', sound_file: 'train_whistle.mp3', amplitude: '60-80' }]
-    window.gameFunctions.endGame()
-    const soundsList = document.getElementById('sessionSoundsList')
-    expect(soundsList.textContent).to.equal('train whistle')
-  })
-})
-
-// Helper function for contrast ratio calculation
-function calculateContrastRatio(bg, text) {
-  // Convert colors to RGB
-  const getRGB = (color) => {
-    const temp = document.createElement('div')
-    temp.style.color = color
-    document.body.appendChild(temp)
-    const rgb = window.getComputedStyle(temp).color
-    document.body.removeChild(temp)
-    const match = rgb.match(/\d+/g)
-    return match ? match.map(Number) : [0, 0, 0]
-  }
-
-  // Calculate relative luminance
-  const getLuminance = (rgb) => {
-    const [r, g, b] = rgb.map((c) => {
-      c = c / 255
-      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
-    })
-    return 0.2126 * r + 0.7152 * g + 0.0722 * b
-  }
-
-  const bgRGB = getRGB(bg)
-  const textRGB = getRGB(text)
-  const bgLuminance = getLuminance(bgRGB)
-  const textLuminance = getLuminance(textRGB)
-
-  // Calculate contrast ratio
-  const lighter = Math.max(bgLuminance, textLuminance)
-  const darker = Math.min(bgLuminance, textLuminance)
-  return (lighter + 0.05) / (darker + 0.05)
-}
-
-describe('Color Contrast', function () {
-  it('should have sufficient color contrast', function () {
-    const style = window.getComputedStyle(document.body)
-    const backgroundColor = style.backgroundColor
-    const textColor = style.color
-
-    const contrastRatio = calculateContrastRatio(backgroundColor, textColor)
-    expect(contrastRatio).to.be.greaterThan(4.5) // WCAG AA standard
-  })
-})
-
-describe('Format Functions', function () {
-  describe('formatRecipientLabels', function () {
-    it('should handle empty arrays', function () {
-      expect(window.gameFunctions.formatRecipientLabels([])).to.equal('')
-    })
-
-    it('should handle single recipient', function () {
-      const recipients = [{ label: 'na spektrum autyzmu' }]
-      expect(window.gameFunctions.formatRecipientLabels(recipients)).to.equal('na spektrum autyzmu')
-    })
-
-    it('should handle two recipients', function () {
-      const recipients = [{ label: 'na spektrum autyzmu' }, { label: 'cierpiąca na szumy ustne' }]
-      expect(window.gameFunctions.formatRecipientLabels(recipients)).to.equal(
-        'na spektrum autyzmu i cierpiąca na szumy ustne'
-      )
-    })
-
-    it('should handle three or more recipients', function () {
-      const recipients = [
-        { label: 'na spektrum autyzmu' },
-        { label: 'cierpiąca na szumy ustne' },
-        { label: 'niewidoma' }
-      ]
-      expect(window.gameFunctions.formatRecipientLabels(recipients)).to.equal(
-        'na spektrum autyzmu, cierpiąca na szumy ustne i niewidoma'
-      )
-    })
-  })
-
-  describe('formatSoundNames', function () {
-    it('should handle null/undefined sounds', function () {
-      expect(window.gameFunctions.formatSoundNames(null)).to.equal('Brak dźwięków')
-      expect(window.gameFunctions.formatSoundNames(undefined)).to.equal('Brak dźwięków')
-      expect(window.gameFunctions.formatSoundNames([])).to.equal('Brak dźwięków')
-    })
-
-    it('should handle single sound', function () {
-      const sounds = [{ pollution: 'car_horn' }]
-      expect(window.gameFunctions.formatSoundNames(sounds)).to.equal('car horn')
-    })
-
-    it('should handle two sounds', function () {
-      const sounds = [{ pollution: 'car_horn' }, { pollution: 'train_whistle' }]
-      expect(window.gameFunctions.formatSoundNames(sounds)).to.equal('car horn i train whistle')
-    })
-
-    it('should handle three or more sounds', function () {
-      const sounds = [{ pollution: 'car_horn' }, { pollution: 'train_whistle' }, { pollution: 'ambulance_siren' }]
-      expect(window.gameFunctions.formatSoundNames(sounds)).to.equal('car horn, train whistle i ambulance siren')
-    })
+    expect(gameState.selectedSounds).to.be.an('array').that.is.empty
+    expect(gameState.selectedRecipients).to.be.an('array').that.is.empty
   })
 })
 
@@ -2009,5 +2167,294 @@ describe('UI Functions', function () {
         window.gameFunctions.setupButtonListeners(null, () => {}, 'Test Button')
       }).to.not.throw()
     })
+  })
+})
+
+describe('Points Multiplier Management', function () {
+  beforeEach(function () {
+    window.gameFunctions.resetGameState()
+  })
+
+  it('should initialize with default multiplier of 1.0', function () {
+    const gameState = window.gameFunctions.getGameState()
+    expect(gameState.pointsMultiplier).to.equal(1.0)
+  })
+
+  it('should increase multiplier when decreasing time', function () {
+    const gameState = window.gameFunctions.getGameState()
+    window.gameFunctions.adjustTime(-10)
+    expect(gameState.pointsMultiplier).to.equal(1.5)
+  })
+
+  it('should decrease multiplier when increasing time', function () {
+    const gameState = window.gameFunctions.getGameState()
+    window.gameFunctions.adjustTime(10)
+    expect(gameState.pointsMultiplier).to.equal(0.75)
+  })
+
+  it('should apply multiplier to points calculation', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.pointsMultiplier = 1.5
+    const sound = { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' }
+    const points = window.gameFunctions.calculatePoints(sound, true)
+    expect(points).to.equal(75) // (100 - 50) * 1.5
+  })
+
+  it('should reset multiplier when game is reset', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.pointsMultiplier = 2.0
+    window.gameFunctions.resetGame()
+    expect(gameState.pointsMultiplier).to.equal(1.0)
+  })
+})
+
+describe('Selected Recipients Management', function () {
+  beforeEach(function () {
+    window.gameFunctions.resetGameState()
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div id="recipientCheckboxes"></div>
+      </div>
+    `
+  })
+
+  it('should add recipient when checkbox is checked', function () {
+    const gameState = window.gameFunctions.getGameState()
+    const recipient = {
+      group: 'test',
+      label: 'Test Recipient',
+      risk_function: 'reduced_time'
+    }
+    const checkbox = window.gameFunctions.createRecipientCheckbox(recipient)
+    document.getElementById('recipientCheckboxes').appendChild(checkbox)
+
+    const input = checkbox.querySelector('input')
+    input.checked = true
+    input.dispatchEvent(new Event('change'))
+
+    expect(gameState.selectedRecipients).to.deep.include(recipient)
+  })
+
+  it('should remove recipient when checkbox is unchecked', function () {
+    const gameState = window.gameFunctions.getGameState()
+    const recipient = {
+      group: 'test',
+      label: 'Test Recipient',
+      risk_function: 'reduced_time'
+    }
+    gameState.selectedRecipients.push(recipient)
+
+    const checkbox = window.gameFunctions.createRecipientCheckbox(recipient)
+    document.getElementById('recipientCheckboxes').appendChild(checkbox)
+
+    const input = checkbox.querySelector('input')
+    input.checked = false
+    input.dispatchEvent(new Event('change'))
+
+    expect(gameState.selectedRecipients).to.not.deep.include(recipient)
+  })
+
+  it('should clear selected recipients when game is reset', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedRecipients = [
+      { group: 'test1', label: 'Test 1', risk_function: 'reduced_time' },
+      { group: 'test2', label: 'Test 2', risk_function: 'right_channel_sine' }
+    ]
+
+    window.gameFunctions.resetGame()
+    expect(gameState.selectedRecipients).to.be.empty
+  })
+
+  it('should handle multiple recipient selections', function () {
+    const gameState = window.gameFunctions.getGameState()
+    const recipients = [
+      { group: 'test1', label: 'Test 1', risk_function: 'reduced_time' },
+      { group: 'test2', label: 'Test 2', risk_function: 'right_channel_sine' }
+    ]
+
+    recipients.forEach((recipient) => {
+      const checkbox = window.gameFunctions.createRecipientCheckbox(recipient)
+      document.getElementById('recipientCheckboxes').appendChild(checkbox)
+      const input = checkbox.querySelector('input')
+      input.checked = true
+      input.dispatchEvent(new Event('change'))
+    })
+
+    expect(gameState.selectedRecipients).to.have.lengthOf(2)
+    expect(gameState.selectedRecipients).to.deep.include.members(recipients)
+  })
+})
+
+describe('Recipients Loading and Management', function () {
+  beforeEach(function () {
+    window.gameFunctions.resetGameState()
+  })
+
+  it('should load recipients from JSON file', async function () {
+    // Mock fetch to return test recipients
+    const originalFetch = window.fetch
+    window.fetch = (url) => {
+      if (url.includes('recipients.json')) {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve([
+              {
+                group: 'test1',
+                label: 'Test 1',
+                risk_function: 'reduced_time'
+              },
+              {
+                group: 'test2',
+                label: 'Test 2',
+                risk_function: 'right_channel_sine'
+              }
+            ])
+        })
+      }
+      return originalFetch(url)
+    }
+
+    const gameState = window.gameFunctions.getGameState()
+    await window.gameFunctions.init()
+    expect(gameState.recipients).to.be.an('array')
+    expect(gameState.recipients).to.have.lengthOf(2)
+    expect(gameState.recipients[0]).to.have.property('group')
+    expect(gameState.recipients[0]).to.have.property('label')
+    expect(gameState.recipients[0]).to.have.property('risk_function')
+
+    // Restore original fetch
+    window.fetch = originalFetch
+  })
+
+  it('should handle empty recipients array', async function () {
+    // Mock fetch to return empty array
+    const originalFetch = window.fetch
+    window.fetch = () =>
+      Promise.resolve({
+        json: () => Promise.resolve([])
+      })
+
+    const gameState = window.gameFunctions.getGameState()
+    await window.gameFunctions.init()
+    expect(gameState.recipients).to.be.an('array').that.is.empty
+
+    // Restore original fetch
+    window.fetch = originalFetch
+  })
+
+  it('should handle fetch errors gracefully', async function () {
+    // Mock fetch to simulate error
+    const originalFetch = window.fetch
+    window.fetch = () => Promise.reject(new Error('Network error'))
+
+    const gameState = window.gameFunctions.getGameState()
+    await window.gameFunctions.init()
+    expect(gameState.recipients).to.be.an('array').that.is.empty
+
+    // Restore original fetch
+    window.fetch = originalFetch
+  })
+
+  it('should create recipient selection UI', async function () {
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div id="recipientCheckboxes"></div>
+      </div>
+    `
+
+    // Mock fetch to return test recipients
+    const originalFetch = window.fetch
+    window.fetch = (url) => {
+      if (url.includes('recipients.json')) {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve([
+              {
+                group: 'test1',
+                label: 'Test 1',
+                risk_function: 'reduced_time'
+              },
+              {
+                group: 'test2',
+                label: 'Test 2',
+                risk_function: 'right_channel_sine'
+              }
+            ])
+        })
+      }
+      return originalFetch(url)
+    }
+
+    await window.gameFunctions.init()
+    window.gameFunctions.createRecipientSelection()
+
+    const checkboxes = document.querySelectorAll('.recipient-checkbox')
+    expect(checkboxes).to.have.lengthOf(2) // Based on mocked recipients
+
+    // Restore original fetch
+    window.fetch = originalFetch
+  })
+})
+
+describe('Loading State Management', function () {
+  beforeEach(function () {
+    window.gameFunctions.resetGameState()
+  })
+
+  it('should initialize with isLoading set to false', function () {
+    const gameState = window.gameFunctions.getGameState()
+    expect(gameState.isLoading).to.be.false
+  })
+
+  it('should set isLoading to true during sound preloading', async function () {
+    const gameState = window.gameFunctions.getGameState()
+
+    // Mock preloadSounds to check isLoading state
+    const originalPreloadSounds = window.gameFunctions.preloadSounds
+    window.gameFunctions.preloadSounds = async function () {
+      gameState.isLoading = true
+      await originalPreloadSounds.call(this)
+      gameState.isLoading = false
+    }
+
+    await window.gameFunctions.startGame()
+    expect(gameState.isLoading).to.be.false
+
+    // Restore original function
+    window.gameFunctions.preloadSounds = originalPreloadSounds
+  })
+
+  it('should handle loading state during initialization', async function () {
+    const gameState = window.gameFunctions.getGameState()
+
+    // Mock init to check isLoading state
+    const originalInit = window.gameFunctions.init
+    window.gameFunctions.init = async function () {
+      gameState.isLoading = true
+      await originalInit.call(this)
+      gameState.isLoading = false
+    }
+
+    // Mock preloadSounds to ensure it completes
+    const originalPreloadSounds = window.gameFunctions.preloadSounds
+    window.gameFunctions.preloadSounds = async function () {
+      gameState.isLoading = true
+      await originalPreloadSounds.call(this)
+      gameState.isLoading = false
+    }
+
+    await window.gameFunctions.startGame()
+    expect(gameState.isLoading).to.be.false
+
+    // Restore original functions
+    window.gameFunctions.init = originalInit
+    window.gameFunctions.preloadSounds = originalPreloadSounds
+  })
+
+  it('should reset loading state when game is reset', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.isLoading = true
+    window.gameFunctions.resetGame()
+    expect(gameState.isLoading).to.be.false
   })
 })

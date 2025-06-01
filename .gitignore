@@ -41,12 +41,6 @@ logs/
 *.pem
 *.key
 
-# Audio files (if any are generated)
-*.mp3
-*.wav
-*.ogg
-*.m4a
-
 # Backup files
 *.bak
 *.backup

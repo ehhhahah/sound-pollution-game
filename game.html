@@ -15,16 +15,19 @@
   <body>
     <div class="game-container">
       <div id="navbar-container"></div>
-      <div class="score-display">
-        <p>Punkty: <span id="score">0</span></p>
-        <p>Czas: <span id="timer">30</span>s</p>
-      </div>
       <main>
         <div class="game-area">
           <!-- Game states: Controls, Play, and Game Over -->
           <div class="game-start">
             <!-- Initial game controls -->
             <div id="gameControls" class="game-controls">
+              <!-- Recipient selection -->
+              <div class="recipient-selection">
+                <h3>Będę słuchać jako osoba</h3>
+                <div id="recipientCheckboxes">
+                  <!-- Recipient checkboxes will be dynamically added here -->
+                </div>
+              </div>
               <button id="startGame" class="primary-button">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -51,13 +54,17 @@
 
             <!-- Active gameplay interface -->
             <div id="gamePlay" class="game-play" style="display: none">
+              <div class="score-display">
+                <p>Punkty: <span id="score">0</span></p>
+                <p>Czas: <span id="timer">30</span>s</p>
+              </div>
               <!-- Time adjustment controls -->
               <div id="timeAdjustment" class="time-adjustment">
                 <button id="decreaseTime" class="game-button time-button">-10s (Więcej Punktów)</button>
                 <button id="increaseTime" class="game-button time-button">+10s (Mniej Punktów)</button>
               </div>
               <!-- Grid of sound buttons for guessing -->
-              <h2 class="guessing-title">Jako osoba słyszę</h2>
+              <h2 class="guessing-title" style="display: none">Jako osoba słyszę</h2>
               <div class="sound-grid" style="display: none">
                 <!-- Sound buttons will be dynamically added here -->
               </div>
@@ -80,7 +87,9 @@
             <!-- Game over screen with final score -->
             <div id="gameOver" class="game-over" style="display: none">
               <h2>Koniec Gry!</h2>
-              <p>Końcowy Wynik: <span id="finalScore">0</span></p>
+              <div class="score-display">
+                <p>Końcowy Wynik: <span id="finalScore">0</span></p>
+              </div>
               <div id="sessionSounds" class="session-sounds">
                 <h3>Dźwięki w tej sesji:</h3>
                 <ul></ul>

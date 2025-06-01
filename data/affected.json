@@ -18,15 +18,6 @@
         ]
     },
     {
-        "group": "osoby przewlekle chore",
-        "risk": [
-            "zaostrzenie objawów chorób",
-            "szczególnie sercowo-naczyniowych",
-            "zaostrzenie objawów chorób przewlekłych",
-            "szczególnie sercowo-naczyniowych i oddechowych"
-        ]
-    },
-    {
         "group": "osoby z upośledzeniem słuchu",
         "risk": [
             "pogorszenie komunikacji",

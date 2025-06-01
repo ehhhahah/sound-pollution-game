@@ -19,6 +19,8 @@
   --border-light: rgba(255, 255, 255, 0.1);
   --error-red: rgb(152, 123, 123);
   --error-red-light: rgba(106, 68, 68, 0.2);
+  --progress-bar: var(--lead);
+  --progress-bar-bg: var(--lead-hover);
 
   /* Spacing */
   --spacing-xs: 0.25rem; /* 4px */
@@ -89,7 +91,15 @@ h1 {
   gap: var(--spacing-lg);
   font-size: var(--text-lg);
   font-weight: bold;
+  margin: var(--spacing-md) 0;
+}
+
+#gamePlay .score-display {
   margin-bottom: var(--spacing-lg);
+}
+
+#gameOver .score-display {
+  margin: var(--spacing-lg) 0;
 }
 
 .game-area {
@@ -254,20 +264,18 @@ footer {
 
 .loading-content {
   text-align: center;
-  padding: var(--spacing-lg);
-  background-color: var(--pure-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  padding: var(--spacing-xl);
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid var(--light-gray);
-  border-top: 5px solid var(--lead);
-  border-radius: var(--radius-full);
+  width: 60px;
+  height: 60px;
+  border: 3px solid var(--lead-hover);
+  border-top: 3px solid var(--lead);
+  border-radius: 50%;
   margin: 0 auto var(--spacing-lg);
-  animation: spin 1s linear infinite;
+  animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+  box-shadow: 0 0 20px rgba(173, 170, 236, 0.2);
 }
 
 @keyframes spin {
@@ -283,6 +291,7 @@ footer {
   color: var(--text-dark);
   font-size: var(--text-md);
   margin: 0;
+  opacity: 0.8;
 }
 
 #applyGuess {
@@ -370,4 +379,58 @@ footer {
 .rules-important h3 {
   color: var(--error-red);
   margin-top: 0;
+}
+
+.recipient-selection {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+.recipient-selection h3 {
+  color: var(--text-dark);
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+}
+
+.recipient-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-sm);
+  border-radius: var(--radius-lg);
+  transition: background-color var(--transition-normal);
+}
+
+.recipient-checkbox:hover {
+  background-color: var(--lead-hover);
+}
+
+.recipient-checkbox input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  border-radius: var(--radius-lg);
+}
+
+.recipient-checkbox label {
+  cursor: pointer;
+  flex: 1;
+  color: var(--text-dark);
+}
+
+.time-progress-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background-color: var(--progress-bar-bg);
+  z-index: 1000;
+}
+
+.time-progress-bar {
+  height: 100%;
+  background-color: var(--progress-bar);
+  width: 100%;
+  transition: width 1s linear;
 }

@@ -1,0 +1,22 @@
+[
+    {
+        "group": "spektrum autyzmu",
+        "label": "na spektrum autyzmu",
+        "risk_function": "reduced_time"
+    },
+    {
+        "group": "tinnitus",
+        "label": "cierpiąca na szumy ustne",
+        "risk_function": "right_channel_sine"
+    },
+    {
+        "group": "niewidomi",
+        "label": "niewidoma",
+        "risk_function": "loud_sounds_louder"
+    },
+    {
+        "group": "ubodzy",
+        "label": "uboga",
+        "risk_function": "loud_rumble"
+    }
+]

@@ -26,6 +26,7 @@ Testing:
 - Browser-based testing using Mocha and Chai
 - Test suite implemented in tests/game.test.js
 - Test runner in tests/test.html in browser
+- Whenever user confirms a bug/failed test is fixed, write down a code comment how to prevent issue from reoccuring
 
 Game Rules:
 

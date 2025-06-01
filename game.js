@@ -219,7 +219,7 @@ function updateTimer(time, isGuessingPhase = false) {
  */
 async function loadData() {
   try {
-    const response = await fetch('../data/pollutions.json')
+    const response = await fetch('components/pollutions.json')
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }

@@ -605,7 +605,7 @@ describe('Session Sounds Display', function () {
 describe('Sound File Existence', function () {
   it('should have valid sound file paths', async function () {
     // Fetch the actual pollutions.json data
-    const response = await fetch('../data/pollutions.json')
+    const response = await fetch('components/pollutions.json')
     const pollutions = await response.json()
 
     // Log all files we're going to check

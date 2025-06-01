@@ -2,7 +2,7 @@ This is a sound pollution awareness game implemented as a frontend-only web appl
 
 Game Overview:
 
-- The game presents different sound pollution samples from data/pollutions.json
+- The game presents different sound pollution samples from components/pollutions.json
 - Players must identify the sounds they hear within a time limit
 - Scoring system:
   - Players earn points for correct guesses

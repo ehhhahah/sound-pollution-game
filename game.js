@@ -28,18 +28,26 @@ let gameState = {
 /**
  * Toggles visibility of UI elements
  * @param {Object} elements - Object containing element IDs/classes and their desired display states
+ * @param {boolean} [useFlex=false] - Whether to use 'flex' instead of 'block' for elements
  */
-function toggleUIElements(elements) {
+function toggleUIElements(elements, useFlex = false) {
+  const defaultDisplay = useFlex ? 'flex' : 'block'
+
   Object.entries(elements).forEach(([selector, display]) => {
-    let element
+    let elements
     if (selector.startsWith('.')) {
-      element = document.querySelector(selector)
+      elements = document.querySelectorAll(selector)
     } else if (selector.startsWith('#')) {
-      element = document.getElementById(selector.substring(1))
+      elements = [document.getElementById(selector.substring(1))]
     } else {
-      element = document.getElementById(selector)
+      elements = [document.getElementById(selector)]
     }
-    if (element) element.style.display = display
+
+    elements.forEach((element) => {
+      if (element) {
+        element.style.display = display === true ? defaultDisplay : display
+      }
+    })
   })
 }
 
@@ -52,7 +60,7 @@ function createSoundButton(sound) {
   const button = document.createElement('button')
   button.className = 'game-button sound-button'
   button.dataset.sound = sound.pollution
-  button.textContent = sound.pollution.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+  button.textContent = sound.pollution.replace(/_/g, ' ').toLowerCase()
   button.setAttribute('aria-label', `Guess ${sound.pollution.replace(/_/g, ' ')} sound`)
   button.setAttribute('role', 'button')
 
@@ -485,6 +493,25 @@ function adjustTime(adjustment) {
 }
 
 /**
+ * Formats recipient labels into a string with proper separators
+ * @param {Array} recipients - Array of recipient objects
+ * @returns {string} Formatted recipient labels string
+ */
+function formatRecipientLabels(recipients) {
+  if (recipients.length === 0) {
+    return ''
+  } else if (recipients.length === 1) {
+    return recipients[0].label
+  } else if (recipients.length === 2) {
+    return `${recipients[0].label} i ${recipients[1].label}`
+  } else {
+    const lastRecipient = recipients[recipients.length - 1]
+    const otherRecipients = recipients.slice(0, -1)
+    return `${otherRecipients.map((r) => r.label).join(', ')} i ${lastRecipient.label}`
+  }
+}
+
+/**
  * Starts the guessing phase
  */
 function startGuessingPhase() {
@@ -501,27 +528,13 @@ function startGuessingPhase() {
     createSoundGrid()
   }
 
-  // Update guessing title with recipient labels
-  const guessingTitle = document.querySelector('.guessing-title')
-  if (guessingTitle) {
-    const recipients = gameState.selectedRecipients
-    let recipientLabels = ''
+  // Update all guessing titles with recipient labels
+  const guessingTitles = document.querySelectorAll('.guessing-title')
+  const recipientLabels = formatRecipientLabels(gameState.selectedRecipients)
 
-    if (recipients.length === 0) {
-      recipientLabels = ''
-    } else if (recipients.length === 1) {
-      recipientLabels = recipients[0].label
-    } else if (recipients.length === 2) {
-      recipientLabels = `${recipients[0].label} i ${recipients[1].label}`
-    } else {
-      // For 3 or more recipients
-      const lastRecipient = recipients[recipients.length - 1]
-      const otherRecipients = recipients.slice(0, -1)
-      recipientLabels = `${otherRecipients.map((r) => r.label).join(', ')} i ${lastRecipient.label}`
-    }
-
-    guessingTitle.textContent = `Jako osoba ${recipientLabels} słyszę`
-  }
+  guessingTitles.forEach((title) => {
+    title.textContent = `Jako osoba ${recipientLabels} słyszę`
+  })
 
   // Set display styles directly
   if (soundGrid) {
@@ -551,6 +564,15 @@ function startGuessingPhase() {
 
 /**
  * Ends the guessing phase and shows results
+ *
+ * This function handles:
+ * 1. Stopping the guessing timer
+ * 2. Updating UI elements visibility
+ * 3. Displaying the final score
+ * 4. Updating the session sounds display with proper formatting:
+ *    - Shows sounds in a comma-separated list with "i" before the last sound
+ *    - Formats sound names by replacing underscores with spaces and capitalizing words
+ * 5. Updating all guessing titles with recipient labels
  */
 function endGuessingPhase() {
   clearInterval(gameState.guessingInterval)
@@ -561,26 +583,35 @@ function endGuessingPhase() {
 
   toggleUIElements({
     'sound-grid': 'none',
-    '.guessing-title': 'none',
     applyGuess: 'none',
     timeAdjustment: 'none',
     gamePlay: 'none',
-    gameOver: 'block'
+    gameOver: 'block',
+    '.guessing-title': 'block' // Show guessing title on game over screen
   })
 
   document.getElementById('finalScore').textContent = gameState.score
 
-  const sessionSoundsList = document.querySelector('#sessionSounds ul')
-  if (sessionSoundsList) {
-    sessionSoundsList.innerHTML = ''
-    if (gameState.selectedSounds?.length > 0) {
-      gameState.selectedSounds.forEach((sound) => {
-        const li = document.createElement('li')
-        li.textContent = sound.pollution.replace('_', ' ').toUpperCase()
-        sessionSoundsList.appendChild(li)
-      })
+  // Update session sounds display with proper formatting
+  const sessionSounds = document.getElementById('sessionSounds')
+  if (sessionSounds) {
+    const guessingTitle = sessionSounds.querySelector('.guessing-title')
+    const soundsList = sessionSounds.querySelector('#sessionSoundsList')
+    if (guessingTitle && soundsList) {
+      const recipientLabels = formatRecipientLabels(gameState.selectedRecipients)
+      const soundsText = formatSoundNames(gameState.selectedSounds)
+      guessingTitle.textContent = `Jako osoba ${recipientLabels} słyszę`
+      soundsList.textContent = soundsText
     }
   }
+
+  // Update other guessing titles with recipient labels only
+  const otherGuessingTitles = document.querySelectorAll('.guessing-title:not(#sessionSounds .guessing-title)')
+  const recipientLabels = formatRecipientLabels(gameState.selectedRecipients)
+
+  otherGuessingTitles.forEach((title) => {
+    title.textContent = `Jako osoba ${recipientLabels} słyszę`
+  })
 }
 
 /**
@@ -634,21 +665,47 @@ function startGameTimer() {
 }
 
 /**
- * Adds touch support to a button element
- * @param {HTMLElement} button - The button element to add touch support to
- * @param {Function} action - The action to perform on touch
+ * Sets up event listeners for a button with keyboard, click, and touch support
+ * @param {HTMLElement} button - The button element to set up
+ * @param {Function} action - The action to perform
+ * @param {string} ariaLabel - The ARIA label for the button
  */
-function addTouchSupport(button, action) {
-  if (button) {
-    button.addEventListener('touchstart', (e) => {
+function setupButtonListeners(button, action, ariaLabel) {
+  if (!button) return
+
+  button.setAttribute('aria-label', ariaLabel)
+  button.setAttribute('tabindex', '0')
+  button.setAttribute('role', 'button')
+
+  // Click event
+  button.addEventListener('click', action)
+
+  // Keyboard events
+  button.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      action()
+    }
+  })
+
+  // Touch events
+  button.addEventListener(
+    'touchstart',
+    (e) => {
       e.preventDefault()
       button.classList.add('active')
       action()
-    })
-    button.addEventListener('touchend', () => {
+    },
+    { passive: false }
+  )
+
+  button.addEventListener(
+    'touchend',
+    () => {
       button.classList.remove('active')
-    })
-  }
+    },
+    { passive: true }
+  )
 }
 
 /**
@@ -673,71 +730,12 @@ function setupEventListeners() {
     }
   })
 
-  // Add ARIA attributes and keyboard navigation
-  if (startGameBtn) {
-    startGameBtn.setAttribute('aria-label', 'Start the game')
-    startGameBtn.setAttribute('tabindex', '0')
-    startGameBtn.addEventListener('click', startGame)
-    startGameBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        startGame()
-      }
-    })
-    addTouchSupport(startGameBtn, startGame)
-  }
-
-  if (playAgainBtn) {
-    playAgainBtn.setAttribute('aria-label', 'Play again')
-    playAgainBtn.setAttribute('tabindex', '0')
-    playAgainBtn.addEventListener('click', resetGame)
-    playAgainBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        resetGame()
-      }
-    })
-    addTouchSupport(playAgainBtn, resetGame)
-  }
-
-  if (decreaseTimeBtn) {
-    decreaseTimeBtn.setAttribute('aria-label', 'Decrease time by 10 seconds for more points')
-    decreaseTimeBtn.setAttribute('tabindex', '0')
-    decreaseTimeBtn.addEventListener('click', () => adjustTime(-10))
-    decreaseTimeBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        adjustTime(-10)
-      }
-    })
-    addTouchSupport(decreaseTimeBtn, () => adjustTime(-10))
-  }
-
-  if (increaseTimeBtn) {
-    increaseTimeBtn.setAttribute('aria-label', 'Increase time by 10 seconds for fewer points')
-    increaseTimeBtn.setAttribute('tabindex', '0')
-    increaseTimeBtn.addEventListener('click', () => adjustTime(10))
-    increaseTimeBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        adjustTime(10)
-      }
-    })
-    addTouchSupport(increaseTimeBtn, () => adjustTime(10))
-  }
-
-  if (applyGuessBtn) {
-    applyGuessBtn.setAttribute('aria-label', 'Apply your guess')
-    applyGuessBtn.setAttribute('tabindex', '0')
-    applyGuessBtn.addEventListener('click', applyGuess)
-    applyGuessBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        applyGuess()
-      }
-    })
-    addTouchSupport(applyGuessBtn, applyGuess)
-  }
+  // Set up button listeners
+  setupButtonListeners(startGameBtn, startGame, 'Start the game')
+  setupButtonListeners(playAgainBtn, resetGame, 'Play again')
+  setupButtonListeners(decreaseTimeBtn, () => adjustTime(-10), 'Decrease time by 10 seconds for more points')
+  setupButtonListeners(increaseTimeBtn, () => adjustTime(10), 'Increase time by 10 seconds for fewer points')
+  setupButtonListeners(applyGuessBtn, applyGuess, 'Apply your guess')
 
   if (soundGrid) {
     soundGrid.setAttribute('role', 'grid')
@@ -788,9 +786,11 @@ async function startGame() {
   // Announce game start
   liveRegion.textContent = 'Game started. Listen carefully to identify the sounds.'
 
-  document.getElementById('gameControls').style.display = 'none'
-  document.getElementById('gamePlay').style.display = 'block'
-  document.querySelector('.sound-grid').style.display = 'none'
+  toggleUIElements({
+    gameControls: 'none',
+    gamePlay: 'block',
+    '.sound-grid': 'none'
+  })
 
   // Ensure time progress bar exists and show it
   createTimeProgressBar()
@@ -840,6 +840,29 @@ function createSoundGrid() {
 }
 
 /**
+ * Formats sound names into a string with proper separators
+ * @param {Array} sounds - Array of sound objects
+ * @returns {string} Formatted sound names string
+ */
+function formatSoundNames(sounds) {
+  if (!sounds?.length) {
+    return 'Brak odtworzonych dźwięków'
+  }
+
+  const formatSound = (sound) => sound.pollution.replace(/_/g, ' ').toLowerCase()
+
+  if (sounds.length === 1) {
+    return formatSound(sounds[0])
+  } else if (sounds.length === 2) {
+    return `${formatSound(sounds[0])} i ${formatSound(sounds[1])}`
+  } else {
+    const lastSound = sounds[sounds.length - 1]
+    const otherSounds = sounds.slice(0, -1)
+    return `${otherSounds.map(formatSound).join(', ')} i ${formatSound(lastSound)}`
+  }
+}
+
+/**
  * Ends the game and shows final score
  */
 function endGame() {
@@ -871,21 +894,14 @@ function endGame() {
   // Update game over screen with selected recipients
   updateGameOverScreen()
 
-  // List all sounds that were played
+  // Update session sounds display
   if (sessionSounds) {
-    const soundsList = sessionSounds.querySelector('ul')
+    const soundsList = sessionSounds.querySelector('#sessionSoundsList')
     if (soundsList) {
-      soundsList.innerHTML = ''
-      if (gameState.selectedSounds && gameState.selectedSounds.length > 0) {
-        gameState.selectedSounds.forEach((sound) => {
-          const li = document.createElement('li')
-          li.textContent = sound.pollution.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
-          soundsList.appendChild(li)
-        })
+      if (gameState.selectedSounds.length > 0) {
+        soundsList.textContent = formatSoundNames(gameState.selectedSounds)
       } else {
-        const li = document.createElement('li')
-        li.textContent = 'Brak odtworzonych dźwięków'
-        soundsList.appendChild(li)
+        soundsList.textContent = 'Brak dźwięków'
       }
     }
   }
@@ -924,14 +940,18 @@ function resetGame() {
   updateTimer(30)
 
   // Reset UI elements
-  toggleUIElements({
-    gameOver: 'none',
-    gameControls: 'block',
-    gamePlay: 'none',
-    '.sound-grid': 'none',
-    applyGuess: 'none',
-    '#timeAdjustment': 'flex'
-  })
+  toggleUIElements(
+    {
+      gameOver: 'none',
+      gameControls: 'block',
+      gamePlay: 'none',
+      '.sound-grid': 'none',
+      applyGuess: 'none',
+      '#timeAdjustment': 'flex',
+      '.guessing-title': 'none'
+    },
+    true
+  )
 
   // Reset recipient checkboxes
   const checkboxes = document.querySelectorAll('.recipient-checkbox input')
@@ -1100,6 +1120,10 @@ if (window.location.pathname.includes('test.html')) {
     endGame,
     setupEventListeners,
     createSoundButton,
+    formatRecipientLabels,
+    formatSoundNames,
+    toggleUIElements,
+    setupButtonListeners,
     getGameState: () => gameState,
     resetGameState: () => {
       gameState = {

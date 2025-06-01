@@ -717,8 +717,7 @@ describe('Transition State', function () {
           <h2>Game Over!</h2>
           <p>Final Score: <span id="finalScore">0</span></p>
           <div id="sessionSounds" class="session-sounds">
-            <h3>Sounds in this session:</h3>
-            <ul></ul>
+            <h2 class="guessing-title">Jako osoba słyszę <span id="sessionSoundsList"></span></h2>
           </div>
           <button id="playAgain">Play Again</button>
         </div>
@@ -737,25 +736,6 @@ describe('Transition State', function () {
     window.gameFunctions.startGuessingPhase()
 
     expect(timeAdjustment.style.display).to.equal('none')
-  })
-
-  it('should display session sounds in game over screen', function () {
-    const gameState = window.gameFunctions.getGameState()
-    const sessionSounds = document.getElementById('sessionSounds')
-
-    // Set up test sounds
-    gameState.selectedSounds = [
-      { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
-      { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
-    ]
-
-    // End game
-    window.gameFunctions.endGuessingPhase()
-
-    const soundList = sessionSounds.querySelector('ul')
-    expect(soundList.children.length).to.equal(2)
-    expect(soundList.children[0].textContent).to.equal('CAR')
-    expect(soundList.children[1].textContent).to.equal('TRAIN')
   })
 
   it('should mute sounds during guessing phase', function () {
@@ -1561,9 +1541,7 @@ describe('Browser Compatibility', function () {
         expect(gameState.preloadedSounds.size).to.equal(1)
       }
     })
-  })
 
-  describe('Mobile Device Interactions', function () {
     it('should handle touch events', function () {
       const gameState = window.gameFunctions.getGameState()
       document.body.innerHTML = `
@@ -1711,6 +1689,91 @@ describe('Accessibility Testing', function () {
   })
 })
 
+describe('Session Sounds Display', function () {
+  beforeEach(function () {
+    window.gameFunctions.resetGameState()
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div id="gameControls">
+          <button id="startGame">Start Game</button>
+        </div>
+        <div id="gamePlay" style="display: none">
+          <div class="sound-grid" style="display: none"></div>
+        </div>
+        <div id="gameOver" style="display: none">
+          <h2>Game Over!</h2>
+          <p>Final Score: <span id="finalScore">0</span></p>
+          <div id="sessionSounds" class="session-sounds">
+            <h2 class="guessing-title">Jako osoba słyszę <span id="sessionSoundsList"></span></h2>
+          </div>
+          <button id="playAgain">Play Again</button>
+        </div>
+      </div>
+    `
+  })
+
+  it('should display single sound in game over screen', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' }]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('car horn')
+  })
+
+  it('should display multiple sounds with proper formatting', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [
+      { pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' },
+      { pollution: 'train_whistle', sound_file: 'train_whistle.mp3', amplitude: '60-80' },
+      { pollution: 'ambulance_siren', sound_file: 'ambulance_siren.mp3', amplitude: '70-90' }
+    ]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('car horn, train whistle i ambulance siren')
+  })
+
+  it('should display "Brak dźwięków" when no sounds were played', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = []
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('Brak dźwięków')
+  })
+
+  it('should display sounds with recipient labels', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' }]
+    gameState.selectedRecipients = [
+      { group: 'tinnitus', label: 'cierpiąca na szumy ustne', risk_function: 'right_channel_sine' }
+    ]
+    window.gameFunctions.endGame()
+    const guessingTitle = document.querySelector('#sessionSounds .guessing-title')
+    expect(guessingTitle.textContent).to.equal('Jako osoba słyszę car horn')
+  })
+
+  it('should handle special characters in sound names', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [
+      { pollution: 'car_horn_2', sound_file: 'car_horn_2.mp3', amplitude: '50-70' },
+      { pollution: 'train_whistle_3', sound_file: 'train_whistle_3.mp3', amplitude: '60-80' }
+    ]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('car horn 2 i train whistle 3')
+  })
+
+  it('should update session sounds when game is reset', function () {
+    const gameState = window.gameFunctions.getGameState()
+    gameState.selectedSounds = [{ pollution: 'car_horn', sound_file: 'car_horn.mp3', amplitude: '50-70' }]
+    window.gameFunctions.endGame()
+    window.gameFunctions.resetGame()
+    gameState.selectedSounds = [{ pollution: 'train_whistle', sound_file: 'train_whistle.mp3', amplitude: '60-80' }]
+    window.gameFunctions.endGame()
+    const soundsList = document.getElementById('sessionSoundsList')
+    expect(soundsList.textContent).to.equal('train whistle')
+  })
+})
+
 // Helper function for contrast ratio calculation
 function calculateContrastRatio(bg, text) {
   // Convert colors to RGB
@@ -1752,5 +1815,199 @@ describe('Color Contrast', function () {
 
     const contrastRatio = calculateContrastRatio(backgroundColor, textColor)
     expect(contrastRatio).to.be.greaterThan(4.5) // WCAG AA standard
+  })
+})
+
+describe('Format Functions', function () {
+  describe('formatRecipientLabels', function () {
+    it('should handle empty arrays', function () {
+      expect(window.gameFunctions.formatRecipientLabels([])).to.equal('')
+    })
+
+    it('should handle single recipient', function () {
+      const recipients = [{ label: 'na spektrum autyzmu' }]
+      expect(window.gameFunctions.formatRecipientLabels(recipients)).to.equal('na spektrum autyzmu')
+    })
+
+    it('should handle two recipients', function () {
+      const recipients = [{ label: 'na spektrum autyzmu' }, { label: 'cierpiąca na szumy ustne' }]
+      expect(window.gameFunctions.formatRecipientLabels(recipients)).to.equal(
+        'na spektrum autyzmu i cierpiąca na szumy ustne'
+      )
+    })
+
+    it('should handle three or more recipients', function () {
+      const recipients = [
+        { label: 'na spektrum autyzmu' },
+        { label: 'cierpiąca na szumy ustne' },
+        { label: 'niewidoma' }
+      ]
+      expect(window.gameFunctions.formatRecipientLabels(recipients)).to.equal(
+        'na spektrum autyzmu, cierpiąca na szumy ustne i niewidoma'
+      )
+    })
+  })
+
+  describe('formatSoundNames', function () {
+    it('should handle null/undefined sounds', function () {
+      expect(window.gameFunctions.formatSoundNames(null)).to.equal('Brak odtworzonych dźwięków')
+      expect(window.gameFunctions.formatSoundNames(undefined)).to.equal('Brak odtworzonych dźwięków')
+      expect(window.gameFunctions.formatSoundNames([])).to.equal('Brak odtworzonych dźwięków')
+    })
+
+    it('should handle single sound', function () {
+      const sounds = [{ pollution: 'car_horn' }]
+      expect(window.gameFunctions.formatSoundNames(sounds)).to.equal('car horn')
+    })
+
+    it('should handle two sounds', function () {
+      const sounds = [{ pollution: 'car_horn' }, { pollution: 'train_whistle' }]
+      expect(window.gameFunctions.formatSoundNames(sounds)).to.equal('car horn i train whistle')
+    })
+
+    it('should handle three or more sounds', function () {
+      const sounds = [{ pollution: 'car_horn' }, { pollution: 'train_whistle' }, { pollution: 'ambulance_siren' }]
+      expect(window.gameFunctions.formatSoundNames(sounds)).to.equal('car horn, train whistle i ambulance siren')
+    })
+  })
+})
+
+describe('UI Functions', function () {
+  beforeEach(function () {
+    document.body.innerHTML = `
+      <div class="game-container">
+        <div id="testId">Test ID</div>
+        <div class="testClass">Test Class</div>
+        <div class="testClass">Another Test Class</div>
+        <div id="flexContainer">Flex Container</div>
+      </div>
+    `
+  })
+
+  describe('toggleUIElements', function () {
+    it('should handle ID selectors', function () {
+      window.gameFunctions.toggleUIElements({
+        testId: 'none'
+      })
+      expect(document.getElementById('testId').style.display).to.equal('none')
+    })
+
+    it('should handle class selectors', function () {
+      window.gameFunctions.toggleUIElements({
+        '.testClass': 'none'
+      })
+      const elements = document.querySelectorAll('.testClass')
+      elements.forEach((element) => {
+        expect(element.style.display).to.equal('none')
+      })
+    })
+
+    it('should support flex display', function () {
+      window.gameFunctions.toggleUIElements(
+        {
+          flexContainer: true
+        },
+        true
+      )
+      expect(document.getElementById('flexContainer').style.display).to.equal('flex')
+    })
+
+    it('should handle multiple elements with different display values', function () {
+      window.gameFunctions.toggleUIElements(
+        {
+          testId: 'none',
+          '.testClass': 'block',
+          flexContainer: true
+        },
+        true
+      )
+      expect(document.getElementById('testId').style.display).to.equal('none')
+      const classElements = document.querySelectorAll('.testClass')
+      classElements.forEach((element) => {
+        expect(element.style.display).to.equal('block')
+      })
+      expect(document.getElementById('flexContainer').style.display).to.equal('flex')
+    })
+  })
+
+  describe('setupButtonListeners', function () {
+    it('should set up all accessibility attributes', function () {
+      const button = document.createElement('button')
+      const action = () => {}
+      const ariaLabel = 'Test Button'
+
+      window.gameFunctions.setupButtonListeners(button, action, ariaLabel)
+
+      expect(button.getAttribute('aria-label')).to.equal(ariaLabel)
+      expect(button.getAttribute('tabindex')).to.equal('0')
+      expect(button.getAttribute('role')).to.equal('button')
+    })
+
+    it('should handle click events', function () {
+      const button = document.createElement('button')
+      let clicked = false
+      const action = () => {
+        clicked = true
+      }
+
+      window.gameFunctions.setupButtonListeners(button, action, 'Test Button')
+      button.click()
+
+      expect(clicked).to.be.true
+    })
+
+    it('should handle keyboard events', function () {
+      const button = document.createElement('button')
+      let triggered = false
+      const action = () => {
+        triggered = true
+      }
+
+      window.gameFunctions.setupButtonListeners(button, action, 'Test Button')
+
+      // Test Enter key
+      const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+      button.dispatchEvent(enterEvent)
+      expect(triggered).to.be.true
+
+      // Reset and test Space key
+      triggered = false
+      const spaceEvent = new KeyboardEvent('keydown', { key: ' ' })
+      button.dispatchEvent(spaceEvent)
+      expect(triggered).to.be.true
+    })
+
+    it('should handle touch events', function () {
+      const button = document.createElement('button')
+      let touched = false
+      const action = () => {
+        touched = true
+      }
+
+      window.gameFunctions.setupButtonListeners(button, action, 'Test Button')
+
+      // Test touchstart
+      const touchStartEvent = new TouchEvent('touchstart', {
+        bubbles: true,
+        cancelable: true
+      })
+      button.dispatchEvent(touchStartEvent)
+      expect(button.classList.contains('active')).to.be.true
+      expect(touched).to.be.true
+
+      // Test touchend
+      const touchEndEvent = new TouchEvent('touchend', {
+        bubbles: true,
+        cancelable: true
+      })
+      button.dispatchEvent(touchEndEvent)
+      expect(button.classList.contains('active')).to.be.false
+    })
+
+    it('should handle null button gracefully', function () {
+      expect(() => {
+        window.gameFunctions.setupButtonListeners(null, () => {}, 'Test Button')
+      }).to.not.throw()
+    })
   })
 })

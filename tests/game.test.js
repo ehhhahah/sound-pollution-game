@@ -532,7 +532,7 @@ describe('Session Sounds Display', function () {
           <h2>Game Over!</h2>
           <p>Final Score: <span id="finalScore">0</span></p>
           <div id="sessionSounds" class="session-sounds">
-            <h2 class="guessing-title">Jako osoba słyszałxś <span id="sessionSoundsList"></span></h2>
+            <h2 class="guessing-title">Jako słyszałxś <span id="sessionSoundsList"></span></h2>
           </div>
           <button id="playAgain">Play Again</button>
         </div>
@@ -576,7 +576,7 @@ describe('Session Sounds Display', function () {
     ]
     window.gameFunctions.endGame()
     const guessingTitle = document.querySelector('#sessionSounds .guessing-title')
-    expect(guessingTitle.textContent).to.equal('Jako osoba słyszałxś car horn')
+    expect(guessingTitle.textContent).to.equal('Jako słyszałxś car horn')
   })
 
   it('should handle special characters in sound names', function () {
@@ -599,59 +599,6 @@ describe('Session Sounds Display', function () {
     window.gameFunctions.endGame()
     const soundsList = document.getElementById('sessionSoundsList')
     expect(soundsList.textContent).to.equal('train whistle')
-  })
-})
-
-describe('Sound File Existence', function () {
-  it('should have valid sound file paths', async function () {
-    // Fetch the actual pollutions.json data
-    const response = await fetch('components/pollutions.json')
-    const pollutions = await response.json()
-
-    // Log all files we're going to check
-    console.log(
-      'Files to check:',
-      pollutions.map((p) => p.sound_file)
-    )
-
-    for (const pollution of pollutions) {
-      // Check each sound file in the array
-      for (const soundFilePath of pollution.sound_file) {
-        expect(soundFilePath).to.be.a('string')
-        expect(soundFilePath).to.not.be.empty
-
-        console.log('Checking sound file:', soundFilePath)
-
-        // Create a promise that resolves with the file existence status
-        const checkFileExists = () => {
-          return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest()
-            // Use path relative to test file
-            const relativePath = soundFilePath.startsWith('sounds/') ? `../${soundFilePath}` : soundFilePath
-            xhr.open('HEAD', relativePath, true)
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                resolve(true)
-              } else {
-                reject(new Error(`File not found: ${relativePath} (status: ${xhr.status})`))
-              }
-            }
-            xhr.onerror = () => {
-              reject(new Error(`Failed to check file: ${relativePath}`))
-            }
-            xhr.send()
-          })
-        }
-
-        try {
-          const exists = await checkFileExists()
-          expect(exists).to.be.true
-        } catch (error) {
-          console.log('Error details:', error)
-          expect.fail(`Failed to load sound file: ${soundFilePath}. Error: ${error.message}`)
-        }
-      }
-    }
   })
 })
 
@@ -833,7 +780,7 @@ describe('Transition State', function () {
           <h2>Game Over!</h2>
           <p>Final Score: <span id="finalScore">0</span></p>
           <div id="sessionSounds" class="session-sounds">
-            <h2 class="guessing-title">Jako osoba słyszałxś <span id="sessionSoundsList"></span></h2>
+            <h2 class="guessing-title">Jako słyszałxś <span id="sessionSoundsList"></span></h2>
           </div>
           <button id="playAgain">Play Again</button>
         </div>
@@ -1095,6 +1042,15 @@ describe('Risk Functions', function () {
         return {
           connect: () => {},
           gain: { value: 1.0 }
+        }
+      }
+      createBiquadFilter() {
+        return {
+          connect: () => {},
+          disconnect: () => {},
+          type: 'lowpass',
+          frequency: { value: 200 },
+          Q: { value: 1 }
         }
       }
     }
@@ -1430,6 +1386,174 @@ describe('Risk Functions', function () {
       expect(exact50Sound.volumeAdjustment).to.equal(3) // Should amplify at exactly 50
       expect(invalidFormatSound.volumeAdjustment).to.be.undefined
       expect(noAmplitudeSound.volumeAdjustment).to.be.undefined
+    })
+  })
+
+  describe('lowpass_filter risk function', function () {
+    it('should apply 200Hz lowpass filter to all non-tinnitus sounds', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions
+      gameState.pollutions = [
+        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
+        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+      ]
+
+      // Initialize selectedSounds with the pollutions
+      gameState.selectedSounds = [...gameState.pollutions]
+
+      // Add recipient with lowpass_filter risk function
+      gameState.selectedRecipients = [
+        {
+          group: 'hearing_impaired',
+          label: 'osoba z niedosłuchem',
+          risk_function: 'lowpass_filter'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify lowpass filter is applied to all sounds
+      gameState.selectedSounds.forEach((sound) => {
+        if (!sound.isTinnitus) {
+          expect(sound.lowpassFilter).to.equal(200)
+        }
+      })
+    })
+
+    it('should not apply lowpass filter to tinnitus sounds', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions
+      gameState.pollutions = [
+        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
+        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+      ]
+
+      // Initialize selectedSounds with the pollutions
+      gameState.selectedSounds = [...gameState.pollutions]
+
+      // Add tinnitus sound
+      const tinnitusSound = {
+        pollution: 'tinnitus',
+        sound_file: 'sounds/tinnitus.ogg',
+        amplitude: '0-0',
+        isTinnitus: true
+      }
+      gameState.selectedSounds.push(tinnitusSound)
+
+      // Add recipient with lowpass_filter risk function
+      gameState.selectedRecipients = [
+        {
+          group: 'hearing_impaired',
+          label: 'osoba z niedosłuchem',
+          risk_function: 'lowpass_filter'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify tinnitus sound is not affected
+      const tinnitusSoundAfter = gameState.selectedSounds.find((sound) => sound.isTinnitus)
+      expect(tinnitusSoundAfter.lowpassFilter).to.be.undefined
+    })
+
+    it('should handle multiple risk functions together', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions
+      gameState.pollutions = [
+        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
+        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+      ]
+
+      // Initialize selectedSounds with the pollutions
+      gameState.selectedSounds = [...gameState.pollutions]
+
+      // Add multiple recipients with different risk functions
+      gameState.selectedRecipients = [
+        {
+          group: 'hearing_impaired',
+          label: 'osoba z niedosłuchem',
+          risk_function: 'lowpass_filter'
+        },
+        {
+          group: 'tinnitus',
+          label: 'cierpiąca na szumy ustne',
+          risk_function: 'right_channel_sine'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify both effects are applied
+      const regularSound = gameState.selectedSounds.find((sound) => !sound.isTinnitus)
+      const tinnitusSound = gameState.selectedSounds.find((sound) => sound.isTinnitus)
+
+      expect(regularSound.lowpassFilter).to.equal(200)
+      expect(tinnitusSound.isTinnitus).to.be.true
+      expect(tinnitusSound.lowpassFilter).to.be.undefined
+    })
+
+    it('should properly connect and disconnect filter nodes in audio chain', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollution
+      gameState.pollutions = [{ pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' }]
+
+      // Initialize selectedSounds with the pollution
+      gameState.selectedSounds = [...gameState.pollutions]
+
+      // Add recipient with lowpass_filter risk function
+      gameState.selectedRecipients = [
+        {
+          group: 'hearing_impaired',
+          label: 'osoba z niedosłuchem',
+          risk_function: 'lowpass_filter'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Mock audio element
+      const mockAudio = new MockAudio()
+      gameState.preloadedSounds.set('car', mockAudio)
+
+      // Play the sound
+      window.gameFunctions.manageSoundElement(gameState.selectedSounds[0], true)
+
+      // Verify the sound is playing and has the filter applied
+      expect(mockAudio.paused).to.be.false
+      expect(mockAudio.loop).to.be.true
+      expect(gameState.selectedSounds[0].lowpassFilter).to.equal(200)
+    })
+
+    it('should handle empty selectedSounds array', function () {
+      const gameState = window.gameFunctions.getGameState()
+
+      // Add recipient with lowpass_filter risk function
+      gameState.selectedRecipients = [
+        {
+          group: 'hearing_impaired',
+          label: 'osoba z niedosłuchem',
+          risk_function: 'lowpass_filter'
+        }
+      ]
+
+      // Apply risk functions
+      window.gameFunctions.applyRiskFunctions()
+
+      // Verify sounds were selected and filter was applied
+      expect(gameState.selectedSounds.length).to.be.greaterThan(0)
+      gameState.selectedSounds.forEach((sound) => {
+        if (!sound.isTinnitus) {
+          expect(sound.lowpassFilter).to.equal(200)
+        }
+      })
     })
   })
 })

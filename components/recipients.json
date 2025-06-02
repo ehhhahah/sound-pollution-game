@@ -1,22 +1,27 @@
 [
     {
         "group": "spektrum autyzmu",
-        "label": "na spektrum autyzmu",
+        "label": "ososba na spektrum autyzmu",
         "risk_function": "reduced_time"
     },
     {
         "group": "tinnitus",
-        "label": "narażona na hałas",
+        "label": "osoba narażona na hałas",
         "risk_function": "right_channel_sine"
     },
     {
         "group": "niewidomi",
-        "label": "niewidoma",
+        "label": "osoba niewidoma",
         "risk_function": "loud_sounds_louder"
     },
     {
         "group": "ubodzy",
-        "label": "uboga",
+        "label": "osoba uboga",
         "risk_function": "loud_rumble"
+    },
+    {
+        "group": "płód",
+        "label": "płód",
+        "risk_function": "lowpass_filter"
     }
 ]

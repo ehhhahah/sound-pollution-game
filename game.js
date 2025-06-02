@@ -105,29 +105,57 @@ function manageSoundElement(sound, shouldPlay) {
   if (shouldPlay) {
     audio.loop = true
 
+    // Create audio context and nodes if they don't exist
+    if (!audio.audioContext) {
+      audio.audioContext = new AudioContext()
+      audio.source = audio.audioContext.createMediaElementSource(audio)
+      audio.gainNode = audio.audioContext.createGain()
+      audio.source.connect(audio.gainNode)
+      audio.gainNode.connect(audio.audioContext.destination)
+    }
+
+    // Resume audio context if it's suspended
+    if (audio.audioContext.state === 'suspended') {
+      audio.audioContext.resume()
+    }
+
     // Apply volume adjustment if specified
     if (sound.volumeAdjustment !== undefined && sound.volumeAdjustment !== null) {
-      // Create audio context and gain node if they don't exist
-      if (!audio.audioContext) {
-        audio.audioContext = new AudioContext()
-        audio.source = audio.audioContext.createMediaElementSource(audio)
-        audio.gainNode = audio.audioContext.createGain()
-        audio.source.connect(audio.gainNode)
-        audio.gainNode.connect(audio.audioContext.destination)
-      }
-
-      // Validate and apply the volume adjustment
       const volumeAdjustment = parseFloat(sound.volumeAdjustment)
       if (!isNaN(volumeAdjustment) && volumeAdjustment > 0) {
         audio.gainNode.gain.value = volumeAdjustment
       } else {
-        audio.gainNode.gain.value = 1.0 // Default to normal volume for invalid values
-      }
-    } else {
-      // Ensure gain is set to 1.0 when no volume adjustment is specified
-      if (audio.audioContext && audio.gainNode) {
         audio.gainNode.gain.value = 1.0
       }
+    } else {
+      audio.gainNode.gain.value = 1.0
+    }
+
+    // Apply lowpass filter if specified
+    if (sound.lowpassFilter !== undefined && sound.lowpassFilter !== null) {
+      // Disconnect existing filter if it exists
+      if (audio.filterNode) {
+        audio.filterNode.disconnect()
+      }
+
+      // Create and configure lowpass filter
+      audio.filterNode = audio.audioContext.createBiquadFilter()
+      audio.filterNode.type = 'lowpass'
+      audio.filterNode.frequency.value = sound.lowpassFilter
+      audio.filterNode.Q.value = 1 // Quality factor for a gentle rolloff
+
+      // Disconnect gain node from destination
+      audio.gainNode.disconnect()
+
+      // Connect the chain: source -> gain -> filter -> destination
+      audio.gainNode.connect(audio.filterNode)
+      audio.filterNode.connect(audio.audioContext.destination)
+
+      console.log(`Connected lowpass filter for ${sound.pollution} at ${sound.lowpassFilter}Hz`)
+    } else if (audio.filterNode) {
+      // If no filter is specified but one exists, remove it
+      audio.filterNode.disconnect()
+      audio.gainNode.connect(audio.audioContext.destination)
     }
 
     audio.play()
@@ -611,9 +639,9 @@ function startGuessingPhase() {
     if (!recipientsSpan) {
       recipientsSpan = document.createElement('span')
       recipientsSpan.id = 'sessionRecipients'
-      // Insert the span after "Jako osoba"
+      // Insert the span after "Jako"
       const text = title.textContent
-      title.textContent = 'Jako osoba '
+      title.textContent = 'Jako '
       title.appendChild(recipientsSpan)
       title.appendChild(document.createTextNode(' słyszałxś'))
     }
@@ -686,8 +714,8 @@ function endGuessingPhase() {
       if (!recipientsSpan) {
         recipientsSpan = document.createElement('span')
         recipientsSpan.id = 'sessionRecipients'
-        // Insert the span after "Jako osoba"
-        guessingTitle.textContent = 'Jako osoba '
+        // Insert the span after "Jako"
+        guessingTitle.textContent = 'Jako '
         guessingTitle.appendChild(recipientsSpan)
         guessingTitle.appendChild(document.createTextNode(' słyszałxś '))
       }
@@ -711,8 +739,8 @@ function endGuessingPhase() {
     if (!recipientsSpan) {
       recipientsSpan = document.createElement('span')
       recipientsSpan.id = 'sessionRecipients'
-      // Insert the span after "Jako osoba"
-      title.textContent = 'Jako osoba '
+      // Insert the span after "Jako"
+      title.textContent = 'Jako '
       title.appendChild(recipientsSpan)
       title.appendChild(document.createTextNode(' słyszałxś'))
     }
@@ -1002,7 +1030,7 @@ function endGame() {
     const guessingTitle = sessionSounds.querySelector('.guessing-title')
     if (guessingTitle) {
       // Set the base text
-      guessingTitle.textContent = 'Jako osoba słyszałxś '
+      guessingTitle.textContent = 'Jako słyszałxś '
 
       // Add the sounds list
       let soundsList = guessingTitle.querySelector('#sessionSoundsList')
@@ -1158,26 +1186,27 @@ function applyRiskFunctions() {
         gameState.selectedSounds.push(tinnitusSound)
         break
       case 'loud_sounds_louder':
+        /**
+         * IMPORTANT: Amplitude parsing logic
+         *
+         * The amplitude value can come in different formats:
+         * 1. "up to X dB" format (e.g., "up to 80 dB")
+         * 2. "X-Y" range format (e.g., "50-70")
+         * 3. Plain numeric format (e.g., "50")
+         *
+         * We need to handle all these cases to ensure proper volume adjustment.
+         * The condition `amplitude >= 50` is crucial because:
+         * - Sounds with exactly 50 dB should be amplified (test case requirement)
+         * - This matches the test expectations in game.test.js
+         * - Prevents edge case bugs where sounds at exactly 50 dB are missed
+         *
+         * Note: The volume adjustment of 3dB is applied to any sound with
+         * amplitude of 50 dB or higher, making them louder for players
+         * experiencing the game as a visually impaired person.
+         */
+
         // Amplify louder sounds by 3dB
         gameState.pollutions.forEach((sound) => {
-          /**
-           * IMPORTANT: Amplitude parsing logic
-           *
-           * The amplitude value can come in different formats:
-           * 1. "up to X dB" format (e.g., "up to 80 dB")
-           * 2. "X-Y" range format (e.g., "50-70")
-           * 3. Plain numeric format (e.g., "50")
-           *
-           * We need to handle all these cases to ensure proper volume adjustment.
-           * The condition `amplitude >= 50` is crucial because:
-           * - Sounds with exactly 50 dB should be amplified (test case requirement)
-           * - This matches the test expectations in game.test.js
-           * - Prevents edge case bugs where sounds at exactly 50 dB are missed
-           *
-           * Note: The volume adjustment of 3dB is applied to any sound with
-           * amplitude of 50 dB or higher, making them louder for players
-           * experiencing the game as a visually impaired person.
-           */
           let amplitude
           if (sound.amplitude) {
             if (typeof sound.amplitude === 'string' && sound.amplitude.includes('up to')) {
@@ -1198,6 +1227,28 @@ function applyRiskFunctions() {
         break
       case 'loud_rumble':
         // To be implemented
+        break
+      case 'lowpass_filter':
+        // First, ensure we have sounds selected
+        if (gameState.selectedSounds.length === 0) {
+          // If no sounds are selected, select random sounds first
+          const numSounds = Math.floor(Math.random() * 5) + 1
+          const availableSounds = [...gameState.pollutions]
+          for (let i = 0; i < numSounds; i++) {
+            if (availableSounds.length === 0) break
+            const randomIndex = Math.floor(Math.random() * availableSounds.length)
+            const sound = availableSounds.splice(randomIndex, 1)[0]
+            gameState.selectedSounds.push(sound)
+          }
+        }
+
+        // Apply lowpass filter to all non-tinnitus sounds
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            sound.lowpassFilter = 200 // Set lowpass filter frequency to 200Hz
+            console.log(`Applied 200Hz lowpass filter to sound: ${sound.pollution}`)
+          }
+        })
         break
     }
   })

@@ -299,7 +299,7 @@ footer {
   color: var(--warm-gray);
   width: 100%;
   background-color: var(--background-light);
-  border-top: 1px solid var(--border-light);
+  font-size: var(--text-xs);
 }
 
 @media (max-width: 768px) {

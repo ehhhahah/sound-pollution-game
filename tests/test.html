@@ -35,14 +35,45 @@
           return document.getElementById('test-container').innerHTML
         }
       })
-    </script>
 
-    <!-- Load game and test files -->
-    <script src="../game.js"></script>
-    <script src="game.test.js"></script>
-    <script>
-      // Run the test suite
-      mocha.run()
+      // Helper function to load test files
+      function loadTestFile(path) {
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script')
+          script.src = path
+          script.onload = resolve
+          script.onerror = reject
+          document.body.appendChild(script)
+        })
+      }
+
+      // Load all test files in sequence
+      async function loadAllTests() {
+        try {
+          // Load game code first
+          await loadTestFile('../game.js')
+
+          // Load helpers
+          await loadTestFile('helpers/mock-audio.js')
+          await loadTestFile('helpers/test-utils.js')
+
+          // Load core test suites
+          await loadTestFile('game.test.js')
+          await loadTestFile('functional.test.js')
+          await loadTestFile('recipients.test.js')
+          await loadTestFile('ui.test.js')
+          await loadTestFile('risk_functions.test.js')
+          await loadTestFile('others.test.js')
+
+          // Run the test suite
+          mocha.run()
+        } catch (error) {
+          console.error('Error loading test files:', error)
+        }
+      }
+
+      // Start loading tests
+      loadAllTests()
     </script>
   </body>
 </html>

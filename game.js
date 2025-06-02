@@ -1185,6 +1185,7 @@ function applyRiskFunctions() {
         }
         gameState.selectedSounds.push(tinnitusSound)
         break
+
       case 'loud_sounds_louder':
         /**
          * IMPORTANT: Amplitude parsing logic

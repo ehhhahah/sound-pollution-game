@@ -28,6 +28,7 @@ describe('Risk Functions', function () {
       createGain() {
         return {
           connect: () => {},
+          disconnect: () => {},
           gain: { value: 1.0 }
         }
       }
@@ -521,6 +522,12 @@ describe('Risk Functions', function () {
 
     it('should handle empty selectedSounds array', function () {
       const gameState = window.gameFunctions.getGameState()
+
+      // Set up test pollutions
+      gameState.pollutions = [
+        { pollution: 'car', sound_file: 'car.mp3', amplitude: '50-70' },
+        { pollution: 'train', sound_file: 'train.mp3', amplitude: '60-80' }
+      ]
 
       // Add recipient with lowpass_filter risk function
       gameState.selectedRecipients = [

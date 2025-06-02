@@ -23,5 +23,15 @@
         "group": "płód",
         "label": "płód",
         "risk_function": "lowpass_filter"
+    },
+    {
+        "group": "seniorzy",
+        "label": "osoba starsza",
+        "risk_function": "high_frequency_loss"
+    },
+    {
+        "group": "pies",
+        "label": "pies",
+        "risk_function": "low_amplified"
     }
 ]

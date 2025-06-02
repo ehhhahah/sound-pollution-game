@@ -805,4 +805,131 @@ describe('Game Logic', function () {
       expect(gameState.score).to.equal(0)
     })
   })
+
+  describe('Risk Functions', function () {
+    beforeEach(async function () {
+      window.gameFunctions.resetGameState()
+      // Set up test pollutions
+      const gameState = window.gameFunctions.getGameState()
+      gameState.pollutions = [
+        { pollution: 'car', sound_file: ['car.mp3'], amplitude: '50-70' },
+        { pollution: 'train', sound_file: ['train.mp3'], amplitude: '60-80' },
+        { pollution: 'plane', sound_file: ['plane.mp3'], amplitude: '70-90' }
+      ]
+    })
+
+    describe('low_amplified', function () {
+      it('should apply bass boost to all non-tinnitus sounds', function () {
+        const gameState = window.gameFunctions.getGameState()
+
+        // Add low_amplified recipient
+        gameState.selectedRecipients = [
+          {
+            group: 'test',
+            label: 'Test Group',
+            risk_function: 'low_amplified'
+          }
+        ]
+
+        // Apply risk functions
+        window.gameFunctions.applyRiskFunctions()
+
+        // Verify bass boost configuration
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            expect(sound.bassBoost).to.exist
+            expect(sound.bassBoost.frequency).to.equal(300)
+            expect(sound.bassBoost.gain).to.equal(10)
+          }
+        })
+      })
+
+      it('should not apply bass boost to tinnitus sounds', function () {
+        const gameState = window.gameFunctions.getGameState()
+
+        // Add a tinnitus sound
+        const tinnitusSound = {
+          pollution: 'tinnitus',
+          sound_file: ['tinnitus.mp3'],
+          amplitude: '0-0',
+          isTinnitus: true
+        }
+        gameState.selectedSounds = [tinnitusSound]
+
+        // Add low_amplified recipient
+        gameState.selectedRecipients = [
+          {
+            group: 'test',
+            label: 'Test Group',
+            risk_function: 'low_amplified'
+          }
+        ]
+
+        // Apply risk functions
+        window.gameFunctions.applyRiskFunctions()
+
+        // Verify tinnitus sound is not modified
+        expect(tinnitusSound.bassBoost).to.not.exist
+      })
+
+      it('should apply bass boost when sounds are selected after risk function application', function () {
+        const gameState = window.gameFunctions.getGameState()
+
+        // Add low_amplified recipient
+        gameState.selectedRecipients = [
+          {
+            group: 'test',
+            label: 'Test Group',
+            risk_function: 'low_amplified'
+          }
+        ]
+
+        // Apply risk functions first
+        window.gameFunctions.applyRiskFunctions()
+
+        // Then select random sounds
+        window.gameFunctions.playRandomSounds()
+
+        // Verify bass boost is applied to all non-tinnitus sounds
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            expect(sound.bassBoost).to.exist
+            expect(sound.bassBoost.frequency).to.equal(300)
+            expect(sound.bassBoost.gain).to.equal(10)
+          }
+        })
+      })
+
+      it('should work alongside other audio effects', function () {
+        const gameState = window.gameFunctions.getGameState()
+
+        // Add multiple recipients with different risk functions
+        gameState.selectedRecipients = [
+          {
+            group: 'test1',
+            label: 'Test Group 1',
+            risk_function: 'low_amplified'
+          },
+          {
+            group: 'test2',
+            label: 'Test Group 2',
+            risk_function: 'lowpass_filter'
+          }
+        ]
+
+        // Apply risk functions
+        window.gameFunctions.applyRiskFunctions()
+
+        // Verify both effects are applied
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            expect(sound.bassBoost).to.exist
+            expect(sound.bassBoost.frequency).to.equal(300)
+            expect(sound.bassBoost.gain).to.equal(10)
+            expect(sound.lowpassFilter).to.equal(200)
+          }
+        })
+      })
+    })
+  })
 })

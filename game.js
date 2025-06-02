@@ -158,6 +158,35 @@ function manageSoundElement(sound, shouldPlay) {
       audio.gainNode.connect(audio.audioContext.destination)
     }
 
+    // Apply bass boost if specified
+    if (sound.bassBoost !== undefined && sound.bassBoost !== null) {
+      // Disconnect existing bass boost if it exists
+      if (audio.bassBoostNode) {
+        audio.bassBoostNode.disconnect()
+      }
+
+      // Create and configure bass boost filter
+      audio.bassBoostNode = audio.audioContext.createBiquadFilter()
+      audio.bassBoostNode.type = 'lowshelf'
+      audio.bassBoostNode.frequency.value = sound.bassBoost.frequency
+      audio.bassBoostNode.gain.value = sound.bassBoost.gain
+
+      // Disconnect gain node from destination
+      audio.gainNode.disconnect()
+
+      // Connect the chain: source -> gain -> bass boost -> destination
+      audio.gainNode.connect(audio.bassBoostNode)
+      audio.bassBoostNode.connect(audio.audioContext.destination)
+
+      console.log(
+        `Connected bass boost for ${sound.pollution} at ${sound.bassBoost.frequency}Hz with ${sound.bassBoost.gain}dB gain`
+      )
+    } else if (audio.bassBoostNode) {
+      // If no bass boost is specified but one exists, remove it
+      audio.bassBoostNode.disconnect()
+      audio.gainNode.connect(audio.audioContext.destination)
+    }
+
     audio.play()
 
     // Add to active sounds and sound elements
@@ -1130,6 +1159,12 @@ function createRecipientCheckbox(recipient) {
       console.log('Removed recipient:', recipient)
       console.log('Current selected recipients:', gameState.selectedRecipients)
     }
+
+    // Update the selected recipients text
+    const selectedRecipientsSpan = document.getElementById('selectedRecipients')
+    if (selectedRecipientsSpan) {
+      selectedRecipientsSpan.textContent = formatRecipientLabels(gameState.selectedRecipients)
+    }
   })
 
   return div
@@ -1227,7 +1262,29 @@ function applyRiskFunctions() {
         })
         break
       case 'loud_rumble':
-        // To be implemented
+        // Find the industrial sound from pollutions array
+        const industrialSound = gameState.pollutions.find((sound) => sound.pollution === 'przemysł')
+        if (industrialSound) {
+          // If we don't have any regular sounds selected, select new random sounds
+          if (gameState.selectedSounds.length === 0) {
+            // Select new random sounds
+            const numSounds = Math.floor(Math.random() * 5) + 1
+            const availableSounds = [...gameState.pollutions]
+            gameState.selectedSounds = [] // Start with empty array
+
+            // Add random pollution sounds
+            for (let i = 0; i < numSounds; i++) {
+              if (availableSounds.length === 0) break
+              const randomIndex = Math.floor(Math.random() * availableSounds.length)
+              const sound = availableSounds.splice(randomIndex, 1)[0]
+              gameState.selectedSounds.push(sound)
+            }
+          }
+          // Add industrial sound if it's not already in selectedSounds
+          if (!gameState.selectedSounds.some((sound) => sound.pollution === 'przemysł')) {
+            gameState.selectedSounds.push(industrialSound)
+          }
+        }
         break
       case 'lowpass_filter':
         // First, ensure we have sounds selected
@@ -1248,6 +1305,56 @@ function applyRiskFunctions() {
           if (!sound.isTinnitus) {
             sound.lowpassFilter = 200 // Set lowpass filter frequency to 200Hz
             console.log(`Applied 200Hz lowpass filter to sound: ${sound.pollution}`)
+          }
+        })
+        break
+
+      case 'high_frequency_loss':
+        // First, ensure we have sounds selected
+        if (gameState.selectedSounds.length === 0) {
+          // If no sounds are selected, select random sounds first
+          const numSounds = Math.floor(Math.random() * 5) + 1
+          const availableSounds = [...gameState.pollutions]
+          for (let i = 0; i < numSounds; i++) {
+            if (availableSounds.length === 0) break
+            const randomIndex = Math.floor(Math.random() * availableSounds.length)
+            const sound = availableSounds.splice(randomIndex, 1)[0]
+            gameState.selectedSounds.push(sound)
+          }
+        }
+
+        // Apply high frequency loss filter to all non-tinnitus sounds
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            sound.lowpassFilter = 1500 // Set lowpass filter frequency to 1.5kHz
+            console.log(`Applied 1.5kHz high frequency loss filter to sound: ${sound.pollution}`)
+          }
+        })
+        break
+
+      case 'low_amplified':
+        // First, ensure we have sounds selected
+        if (gameState.selectedSounds.length === 0) {
+          // If no sounds are selected, select random sounds first
+          const numSounds = Math.floor(Math.random() * 5) + 1
+          const availableSounds = [...gameState.pollutions]
+          for (let i = 0; i < numSounds; i++) {
+            if (availableSounds.length === 0) break
+            const randomIndex = Math.floor(Math.random() * availableSounds.length)
+            const sound = availableSounds.splice(randomIndex, 1)[0]
+            gameState.selectedSounds.push(sound)
+          }
+        }
+
+        // Apply bass boost to all non-tinnitus sounds
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            // Add bass boost configuration
+            sound.bassBoost = {
+              frequency: 300, // 300Hz cutoff
+              gain: 10 // 10dB boost
+            }
+            console.log(`Applied 10dB bass boost below 300Hz to sound: ${sound.pollution}`)
           }
         })
         break

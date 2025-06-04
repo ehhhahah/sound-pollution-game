@@ -64,7 +64,9 @@ body {
 }
 
 body {
-  font-family: 'Instrument Serif', serif;
+  /* font-family: 'Instrument Serif', serif; */
+  font-family: 'Helvetica', sans-serif;
+  letter-spacing: -0.02em;
   line-height: 1.6;
   background-color: var(--background-light);
   color: var(--text-dark);
@@ -80,6 +82,33 @@ main {
   flex: 1;
 }
 
+.links {
+  display: flex;
+  gap: var(--spacing-lg);
+  justify-content: center;
+  margin-top: var(--spacing-lg);
+}
+
+.links a {
+  text-decoration: none;
+  color: var(--text-dark);
+  text-decoration: underline;
+}
+
+.links a:hover {
+  color: var(--lead);
+}
+
+.intro-text,
+.rules-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  text-align: left;
+  font-size: var(--text-md);
+  white-space: pre-line;
+}
+
 .game-container {
   max-width: 100%;
   margin: 0 auto;
@@ -88,6 +117,7 @@ main {
   display: flex;
   flex-direction: column;
   flex: 1;
+  overflow: scroll;
 }
 
 h1 {
@@ -144,6 +174,31 @@ h1 {
   justify-items: center;
 }
 
+/* When there's only one item left */
+.sound-grid:has(> *:only-child) {
+  grid-template-columns: 1fr;
+}
+
+/* When there are two items left */
+.sound-grid:has(> *:nth-last-child(2):first-child) {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* When there are three items left */
+.sound-grid:has(> *:nth-last-child(3):first-child) {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* When there are four items left */
+.sound-grid:has(> *:nth-last-child(4):first-child) {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.sound-grid > *:last-child {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 .guessing-title {
   text-align: center;
   margin: var(--spacing-lg) 0;
@@ -152,7 +207,7 @@ h1 {
 }
 
 .sound-button {
-  background-color: var(--warm-gray);
+  background-color: var(--background-light);
   color: var(--text-dark);
   border: 2px solid var(--charcoal);
   border-radius: 16px;
@@ -275,13 +330,15 @@ h1 {
   border: none;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  font-size: var(--text-md);
+  font-size: var(--text-xs);
   transition: background-color var(--transition-normal);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
   margin: 0 auto;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
 .primary-button:hover {
@@ -293,12 +350,15 @@ h1 {
   padding: var(--spacing-xl);
 }
 
+#footer-container {
+  opacity: 0.5;
+}
+
 footer {
   text-align: center;
   padding: var(--spacing-md);
   color: var(--warm-gray);
   width: 100%;
-  background-color: var(--background-light);
   font-size: var(--text-xs);
 }
 
@@ -414,15 +474,10 @@ footer {
   margin-bottom: var(--spacing-md);
   text-align: center;
   min-height: 1.5em;
-  display: flex;
-  align-items: center;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 0.2em;
 }
 
 .recipient-selection h2 span {
-  display: inline-block;
   transition: all var(--transition-normal);
   opacity: 0;
   transform: translateY(10px);
@@ -443,7 +498,7 @@ footer {
   height: 100%;
   background-color: var(--background-light);
   transform-origin: right;
-  animation: revealText 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: revealText 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @keyframes revealText {
@@ -458,7 +513,6 @@ footer {
 .recipient-checkbox {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
   margin: var(--spacing-sm);
   border-radius: var(--radius-lg);
   transition: background-color var(--transition-normal);

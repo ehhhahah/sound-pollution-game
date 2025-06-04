@@ -117,23 +117,24 @@ main {
 .rules-container h2 {
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-md);
+  border-bottom: 2px var(--lead) solid;
 }
 
 .intro-text h3,
 .rules-container h3 {
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-md);
+  border-bottom: 0.5px var(--lead) solid;
 }
 
 .game-container {
-  max-width: 100%;
-  margin: 0 auto;
   padding: var(--spacing-lg);
   min-height: 450px;
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: scroll;
+  overflow-x: auto;
+  overflow-y: scroll;
 }
 
 h1 {

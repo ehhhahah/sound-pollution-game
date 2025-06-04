@@ -106,7 +106,23 @@ main {
   padding: var(--spacing-lg);
   text-align: left;
   font-size: var(--text-md);
-  white-space: pre-line;
+}
+
+.intro-text p,
+.rules-container p {
+  margin-bottom: var(--spacing-md);
+}
+
+.intro-text h2,
+.rules-container h2 {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+}
+
+.intro-text h3,
+.rules-container h3 {
+  margin-top: var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
 }
 
 .game-container {

@@ -127,6 +127,11 @@ main {
   border-bottom: 0.5px var(--lead) solid;
 }
 
+.intro-text a,
+.rules-container a {
+  color: var(--lead);
+}
+
 .game-container {
   padding: var(--spacing-lg);
   min-height: 450px;
@@ -358,8 +363,30 @@ h1 {
   font-weight: 600;
 }
 
+.primary-button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.primary-button:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.primary-button:focus-visible {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
 .primary-button:hover {
   background-color: var(--win-green-dark);
+  transform: translateY(-1px);
+}
+
+.primary-button:active {
+  transform: translateY(0);
 }
 
 .game-over {
@@ -377,6 +404,11 @@ footer {
   color: var(--warm-gray);
   width: 100%;
   font-size: var(--text-xs);
+}
+
+footer a {
+  color: var(--lead);
+  text-decoration: none;
 }
 
 @media (max-width: 768px) {
@@ -533,9 +565,11 @@ footer {
   margin: var(--spacing-sm);
   border-radius: var(--radius-lg);
   transition: background-color var(--transition-normal);
+  outline: none;
 }
 
-.recipient-checkbox:hover {
+.recipient-checkbox:hover,
+.recipient-checkbox:focus-within {
   background-color: var(--lead-hover);
 }
 
@@ -558,12 +592,16 @@ footer {
   border-color: var(--lead);
 }
 
-.recipient-checkbox input[type='checkbox']:hover {
+.recipient-checkbox input[type='checkbox']:hover,
+.recipient-checkbox input[type='checkbox']:focus {
   border-color: var(--lead-dark);
+  outline: 2px solid var(--lead-dark);
+  outline-offset: 2px;
 }
 
 .recipient-checkbox input[type='checkbox']:focus {
-  outline: none;
+  outline: 2px solid var(--lead-dark);
+  outline-offset: 2px;
 }
 
 .recipient-checkbox label {

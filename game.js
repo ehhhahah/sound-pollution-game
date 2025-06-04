@@ -847,7 +847,14 @@ function setupButtonListeners(button, action, ariaLabel) {
   button.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
+      button.classList.add('active')
       action()
+    }
+  })
+
+  button.addEventListener('keyup', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      button.classList.remove('active')
     }
   })
 
@@ -869,6 +876,19 @@ function setupButtonListeners(button, action, ariaLabel) {
     },
     { passive: true }
   )
+
+  // Focus styles
+  button.addEventListener('focus', () => {
+    button.style.outline = '2px solid #007bff'
+    button.style.outlineOffset = '2px'
+    button.style.boxShadow = '0 0 0 2px rgba(0, 123, 255, 0.25)'
+  })
+
+  button.addEventListener('blur', () => {
+    button.style.outline = 'none'
+    button.style.outlineOffset = '0'
+    button.style.boxShadow = 'none'
+  })
 }
 
 /**
@@ -900,20 +920,44 @@ function setupEventListeners() {
   setupButtonListeners(increaseTimeBtn, () => adjustTime(10), 'Increase time by 10 seconds for fewer points')
   setupButtonListeners(applyGuessBtn, applyGuess, 'Apply your guess')
 
+  // Add keyboard navigation for the start button
+  if (startGameBtn) {
+    startGameBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && !e.shiftKey) {
+        // If tabbing forward from start button, focus the decrease time button
+        e.preventDefault()
+        if (decreaseTimeBtn) {
+          decreaseTimeBtn.focus()
+        }
+      } else if (e.key === 'Tab' && e.shiftKey) {
+        // If shift+tabbing from start button, focus the last checkbox
+        e.preventDefault()
+        const checkboxes = document.querySelectorAll('.recipient-checkbox input[type="checkbox"]')
+        const lastCheckbox = checkboxes[checkboxes.length - 1]
+        if (lastCheckbox) {
+          lastCheckbox.focus()
+        }
+      }
+    })
+  }
+
+  // Add keyboard navigation for the decrease time button
+  if (decreaseTimeBtn) {
+    decreaseTimeBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab' && e.shiftKey) {
+        // If shift+tabbing from decrease time button, focus the start button
+        e.preventDefault()
+        if (startGameBtn) {
+          startGameBtn.focus()
+        }
+      }
+    })
+  }
+
   if (soundGrid) {
     soundGrid.setAttribute('role', 'grid')
     soundGrid.setAttribute('aria-label', 'Sound selection grid')
     soundGrid.setAttribute('tabindex', '0')
-  }
-
-  // Set up tab order
-  if (startGameBtn && decreaseTimeBtn) {
-    startGameBtn.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab' && !e.shiftKey) {
-        e.preventDefault()
-        decreaseTimeBtn.focus()
-      }
-    })
   }
 }
 
@@ -1135,11 +1179,15 @@ function resetGame() {
 function createRecipientCheckbox(recipient) {
   const div = document.createElement('div')
   div.className = 'recipient-checkbox'
+  div.setAttribute('role', 'group')
+  div.setAttribute('aria-label', `Select ${recipient.label} as recipient`)
 
   const checkbox = document.createElement('input')
   checkbox.type = 'checkbox'
   checkbox.id = `recipient-${recipient.group}`
   checkbox.value = recipient.group
+  checkbox.setAttribute('aria-label', recipient.label)
+  checkbox.setAttribute('tabindex', '0')
 
   const label = document.createElement('label')
   label.htmlFor = `recipient-${recipient.group}`
@@ -1147,6 +1195,26 @@ function createRecipientCheckbox(recipient) {
 
   div.appendChild(checkbox)
   div.appendChild(label)
+
+  // Add keyboard event listeners
+  checkbox.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      checkbox.checked = !checkbox.checked
+      checkbox.dispatchEvent(new Event('change'))
+    } else if (e.key === 'Tab' && !e.shiftKey) {
+      // If tabbing forward from the last checkbox, focus the start button
+      const checkboxes = document.querySelectorAll('.recipient-checkbox input[type="checkbox"]')
+      const lastCheckbox = checkboxes[checkboxes.length - 1]
+      if (checkbox === lastCheckbox) {
+        e.preventDefault()
+        const startButton = document.getElementById('startGame')
+        if (startButton) {
+          startButton.focus()
+        }
+      }
+    }
+  })
 
   checkbox.addEventListener('change', () => {
     console.log('Checkbox changed:', recipient.group, 'checked:', checkbox.checked)
@@ -1177,8 +1245,49 @@ function createRecipientSelection() {
   const container = document.getElementById('recipientCheckboxes')
   if (!container) return
 
+  // Ensure the recipient selection container exists
+  let recipientSelection = document.querySelector('.recipient-selection')
+  if (!recipientSelection) {
+    recipientSelection = document.createElement('div')
+    recipientSelection.className = 'recipient-selection'
+    container.parentNode.insertBefore(recipientSelection, container)
+  }
+
+  // Ensure the h2 element exists
+  let h2 = recipientSelection.querySelector('h2')
+  if (!h2) {
+    h2 = document.createElement('h2')
+    recipientSelection.insertBefore(h2, recipientSelection.firstChild)
+  }
+
+  // Create the selected recipients span if it doesn't exist
+  let selectedRecipientsSpan = document.getElementById('selectedRecipients')
+  if (!selectedRecipientsSpan) {
+    selectedRecipientsSpan = document.createElement('span')
+    selectedRecipientsSpan.id = 'selectedRecipients'
+    h2.appendChild(selectedRecipientsSpan)
+  }
+
+  // Clear existing checkboxes
+  container.innerHTML = ''
+
+  // Create and append checkboxes
   gameState.recipients.forEach((recipient) => {
     container.appendChild(createRecipientCheckbox(recipient))
+  })
+
+  // Set up keyboard navigation between checkboxes
+  const checkboxes = container.querySelectorAll('input[type="checkbox"]')
+  checkboxes.forEach((checkbox, index) => {
+    checkbox.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault()
+        const nextIndex = e.shiftKey ? index - 1 : index + 1
+        if (nextIndex >= 0 && nextIndex < checkboxes.length) {
+          checkboxes[nextIndex].focus()
+        }
+      }
+    })
   })
 }
 

@@ -101,6 +101,7 @@ describe('Functional tests', function () {
                 <button id="decreaseTime">-10s</button>
                 <button id="increaseTime">+10s</button>
               </div>
+              <div id="recipientCheckboxes"></div>
             </div>
             <div id="gamePlay" style="display: none">
               <div class="sound-grid"></div>
@@ -109,6 +110,94 @@ describe('Functional tests', function () {
           </div>
         `
       window.gameFunctions.setupEventListeners()
+    })
+
+    describe('Recipient Selection Keyboard Navigation', function () {
+      it('should support keyboard navigation between recipient checkboxes', function () {
+        // Create test recipients
+        const recipients = [
+          { group: 'test1', label: 'Test 1', risk_function: 'reduced_time' },
+          { group: 'test2', label: 'Test 2', risk_function: 'right_channel_sine' }
+        ]
+        window.gameFunctions.getGameState().recipients = recipients
+        window.gameFunctions.createRecipientSelection()
+
+        const checkboxes = document.querySelectorAll('.recipient-checkbox input')
+        expect(checkboxes).to.have.lengthOf(2)
+
+        // Focus first checkbox
+        checkboxes[0].focus()
+        expect(document.activeElement).to.equal(checkboxes[0])
+
+        // Simulate Tab key
+        const tabEvent = new KeyboardEvent('keydown', { key: 'Tab' })
+        checkboxes[0].dispatchEvent(tabEvent)
+        expect(document.activeElement).to.equal(checkboxes[1])
+      })
+
+      it('should toggle checkbox state with keyboard', function () {
+        // Create test recipient
+        const recipient = { group: 'test1', label: 'Test 1', risk_function: 'reduced_time' }
+        window.gameFunctions.getGameState().recipients = [recipient]
+        window.gameFunctions.createRecipientSelection()
+
+        const checkbox = document.querySelector('.recipient-checkbox input')
+        expect(checkbox).to.exist
+
+        // Focus checkbox
+        checkbox.focus()
+
+        // Test Space key
+        const spaceEvent = new KeyboardEvent('keydown', { key: ' ' })
+        checkbox.dispatchEvent(spaceEvent)
+        expect(checkbox.checked).to.be.true
+
+        // Test Enter key
+        const enterEvent = new KeyboardEvent('keydown', { key: 'Enter' })
+        checkbox.dispatchEvent(enterEvent)
+        expect(checkbox.checked).to.be.false
+      })
+
+      it('should have proper ARIA attributes for recipient checkboxes', function () {
+        // Create test recipient
+        const recipient = { group: 'test1', label: 'Test 1', risk_function: 'reduced_time' }
+        window.gameFunctions.getGameState().recipients = [recipient]
+        window.gameFunctions.createRecipientSelection()
+
+        const checkboxContainer = document.querySelector('.recipient-checkbox')
+        const checkbox = checkboxContainer.querySelector('input')
+        const label = checkboxContainer.querySelector('label')
+
+        expect(checkboxContainer.getAttribute('role')).to.equal('group')
+        expect(checkboxContainer.getAttribute('aria-label')).to.equal('Select Test 1 as recipient')
+        expect(checkbox.getAttribute('aria-label')).to.equal('Test 1')
+        expect(checkbox.getAttribute('tabindex')).to.equal('0')
+        expect(label.htmlFor).to.equal(checkbox.id)
+      })
+
+      it('should update selected recipients text when toggling with keyboard', function () {
+        // Create test recipients
+        const recipients = [
+          { group: 'test1', label: 'Test 1', risk_function: 'reduced_time' },
+          { group: 'test2', label: 'Test 2', risk_function: 'right_channel_sine' }
+        ]
+        window.gameFunctions.getGameState().recipients = recipients
+        window.gameFunctions.createRecipientSelection()
+
+        // Add selected recipients span
+        const span = document.createElement('span')
+        span.id = 'selectedRecipients'
+        document.querySelector('.recipient-selection h2').appendChild(span)
+
+        const checkboxes = document.querySelectorAll('.recipient-checkbox input')
+
+        // Toggle first checkbox with keyboard
+        checkboxes[0].focus()
+        const spaceEvent = new KeyboardEvent('keydown', { key: ' ' })
+        checkboxes[0].dispatchEvent(spaceEvent)
+
+        expect(document.getElementById('selectedRecipients').textContent).to.equal('test 1')
+      })
     })
 
     describe('Keyboard Navigation', function () {

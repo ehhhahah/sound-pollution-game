@@ -32,20 +32,6 @@
         ]
     },
     {
-        "pollution": "sirens",
-        "amplitude": "up to 120 dB",
-        "frequency": "sporadic but intense",
-        "sound_file": "sounds/sirens.mp3",
-        "sound_file_source": "",
-        "affects": [
-            "residents near hospitals, police stations, fire stations"
-        ],
-        "existence": [
-            "urban areas",
-            "emergency routes"
-        ]
-    },
-    {
         "pollution": "household",
         "amplitude": "60-88 dB",
         "frequency": "daily, irregular",
@@ -79,3 +65,40 @@
             "public spaces"
         ]
     }
+    {
+    "pollution": "prace_budowlane",
+    "amplitude": "60-130 dB",
+    "frequency": "przerywana, w godzinach roboczych",
+    "affects": [
+        "mieszkańcy okolic budów",
+        "pracownicy budowlani",
+        "osoby starsze i dzieci"
+    ],
+    "existence": [
+        "place budowy",
+        "remonty dróg",
+        "prace wyburzeniowe",
+        "osiedla mieszkaniowe w budowie"
+    ]
+}
+
+{
+    "pollution": "hałas_mieszkaniowy",
+    "amplitude": "30-80 dB",
+    "frequency": "nieregularna, całodobowa",
+    "affects": [
+        "mieszkańcy budynków wielorodzinnych",
+        "osoby starsze",
+        "dzieci",
+        "osoby pracujące zdalnie"
+    ],
+    "existence": [
+        "budynki wielorodzinne",
+        "osiedla mieszkaniowe",
+        "akademiki",
+        "hotele"
+    ]
+}
+
+- woda / rzeka / jezioro
+- burza / fajerwerki / deszcz

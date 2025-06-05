@@ -1343,6 +1343,7 @@ function createRecipientSelection() {
 function selectRandomSounds(count) {
   const availableSounds = [...gameState.pollutions]
   const selected = []
+  count = Math.min(count, 2)
   for (let i = 0; i < count; i++) {
     if (availableSounds.length === 0) break
     const randomIndex = Math.floor(Math.random() * availableSounds.length)

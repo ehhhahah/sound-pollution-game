@@ -1,49 +1,5 @@
 [
     {
-        "pollution": "ruch_uliczny",
-        "amplitude": "45-75 dB",
-        "frequency": "stała",
-        "sound_file": [
-            "sounds/road_traffic_450558.ogg",
-            "sounds/road_traffic_807727.ogg"
-        ],
-        "sound_file_sources": [
-            "https://freesound.org/people/kyles/sounds/450558/",
-            "https://freesound.org/people/christos71/sounds/807727/"
-        ],
-        "affects": [
-            "ludzie",
-            "zwierzęta",
-            "mieszkańcy miast"
-        ],
-        "existence": [
-            "miasta",
-            "przedmieścia",
-            "autostrady",
-            "obszary mieszkalne"
-        ]
-    },
-    {
-        "pollution": "samoloty",
-        "amplitude": "60-150 dB",
-        "frequency": "zmienna, zależna od bliskości lotnisk",
-        "sound_file": [
-            "sounds/airplane.ogg"
-        ],
-        "sound_file_sources": [
-            "https://freesound.org/people/TRP/sounds/573806/"
-        ],
-        "affects": [
-            "ludzie mieszkający w pobliżu lotnisk",
-            "ptaki",
-            "dzika przyroda"
-        ],
-        "existence": [
-            "trasy lotnicze",
-            "obszary w pobliżu lotnisk"
-        ]
-    },
-    {
         "pollution": "kolej",
         "amplitude": "70-90 dB",
         "frequency": "regularna, zależna od rozkładu jazdy",
@@ -61,6 +17,57 @@
             "tory kolejowe",
             "stacje",
             "dworce kolejowe"
+        ]
+    },
+    {
+        "pollution": "kosiarka",
+        "amplitude": "60-105 dB",
+        "frequency": "sezonowa, weekendowa",
+        "sound_file": [
+            "sounds/kosiarka_511734.ogg",
+            "sounds/kosiarka_511735.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/SamuelGremaud/sounds/511734/",
+            "https://freesound.org/people/SamuelGremaud/sounds/511735/"
+        ],
+        "affects": [
+            "sąsiedzi użytkowników",
+            "mieszkańcy dzielnic podmiejskich",
+            "operatorzy sprzętu"
+        ],
+        "existence": [
+            "tereny mieszkaniowe jednorodzinne",
+            "parki publiczne",
+            "boiska sportowe",
+            "tereny rekreacyjne"
+        ]
+    },
+    {
+        "pollution": "pojazdy_ratunkowe",
+        "amplitude": "105-125 dB",
+        "frequency": "sporadyczna, całodobowa",
+        "sound_file": [
+            "sounds/ambulance_765230.ogg",
+            "sounds/ambulance_717558.ogg",
+            "sounds/ambulance_380664.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/Damiana79/sounds/765230/",
+            "https://freesound.org/people/TRP/sounds/717558/",
+            "https://freesound.org/people/kristynavom98/sounds/380664/"
+        ],
+        "affects": [
+            "mieszkańcy tras przejazdu",
+            "pacjenci szpitali",
+            "osoby z zaburzeniami słuchu",
+            "zwierzęta domowe"
+        ],
+        "existence": [
+            "trasy przejazdu pogotowia",
+            "okolice szpitali",
+            "centra miast",
+            "główne arterie komunikacyjne"
         ]
     },
     {
@@ -106,6 +113,52 @@
             "ulice handlowe",
             "centra miast",
             "obszary mieszkalne"
+        ]
+    },
+    {
+        "pollution": "ruch_uliczny",
+        "amplitude": "45-75 dB",
+        "frequency": "stała",
+        "sound_file": [
+            "sounds/road_traffic_450558.ogg",
+            "sounds/road_traffic_807727.ogg",
+            "sounds/road_traffic_545956.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/kyles/sounds/450558/",
+            "https://freesound.org/people/christos71/sounds/807727/",
+            "https://freesound.org/people/SamuelGremaud/sounds/545956/"
+        ],
+        "affects": [
+            "ludzie",
+            "zwierzęta",
+            "mieszkańcy miast"
+        ],
+        "existence": [
+            "miasta",
+            "przedmieścia",
+            "autostrady",
+            "obszary mieszkalne"
+        ]
+    },
+    {
+        "pollution": "samolot",
+        "amplitude": "60-150 dB",
+        "frequency": "zmienna, zależna od bliskości lotnisk",
+        "sound_file": [
+            "sounds/airplane.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/TRP/sounds/573806/"
+        ],
+        "affects": [
+            "ludzie mieszkający w pobliżu lotnisk",
+            "ptaki",
+            "dzika przyroda"
+        ],
+        "existence": [
+            "trasy lotnicze",
+            "obszary w pobliżu lotnisk"
         ]
     }
 ]

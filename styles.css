@@ -312,8 +312,21 @@ h1 {
 }
 
 .time-button:active {
+  transform: translateY(1px);
   background-color: var(--lead-dark);
-  color: var(--pure-white);
+}
+
+.time-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  background-color: var(--muted-silver);
+  border-color: var(--warm-gray);
+}
+
+.time-button:disabled:hover {
+  transform: none;
+  background-color: var(--muted-silver);
 }
 
 .guess-area {
@@ -649,7 +662,7 @@ footer a {
   color: var(--text-dark);
   border: 1px solid var(--lead-hover);
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 12px rgba(70,70,70,0.22);
+  box-shadow: 0 2px 12px rgba(70, 70, 70, 0.22);
   padding: var(--spacing-md);
   font-size: var(--text-sm);
   z-index: 20;

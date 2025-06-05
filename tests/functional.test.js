@@ -184,11 +184,6 @@ describe('Functional tests', function () {
         window.gameFunctions.getGameState().recipients = recipients
         window.gameFunctions.createRecipientSelection()
 
-        // Add selected recipients span
-        const span = document.createElement('span')
-        span.id = 'selectedRecipients'
-        document.querySelector('.recipient-selection h2').appendChild(span)
-
         const checkboxes = document.querySelectorAll('.recipient-checkbox input')
 
         // Toggle first checkbox with keyboard

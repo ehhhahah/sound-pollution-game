@@ -204,26 +204,6 @@ function manageSoundElement(sound, shouldPlay) {
 }
 
 /**
- * Creates the time progress bar element
- */
-function createTimeProgressBar() {
-  // Check if container already exists
-  let container = document.querySelector('.time-progress-container')
-  if (!container) {
-    container = document.createElement('div')
-    container.className = 'time-progress-container'
-    container.style.display = 'none' // Initially hidden
-
-    const progressBar = document.createElement('div')
-    progressBar.className = 'time-progress-bar'
-    progressBar.id = 'timeProgressBar'
-
-    container.appendChild(progressBar)
-    document.body.appendChild(container)
-  }
-}
-
-/**
  * Shows or hides the time progress bar
  * @param {boolean} show - Whether to show or hide the progress bar
  */
@@ -448,8 +428,6 @@ async function init() {
   if (document.getElementById('startGame')) {
     setupEventListeners()
     createRecipientSelection()
-    // Create time progress bar but keep it hidden
-    createTimeProgressBar()
     // Ensure sound grid is hidden at initialization
     const soundGrid = document.querySelector('.sound-grid')
     if (soundGrid) {
@@ -999,8 +977,7 @@ async function startGame() {
     '.sound-grid': 'none'
   })
 
-  // Ensure time progress bar exists and show it
-  createTimeProgressBar()
+  // Ensure time progress bar is visible
   toggleTimeProgressBar(true)
 
   // Reset time adjustment buttons
@@ -1191,9 +1168,20 @@ function createRecipientCheckbox(recipient) {
 
   const label = document.createElement('label')
   label.htmlFor = `recipient-${recipient.group}`
-  label.textContent = recipient.label
+  label.className = 'recipient-checkbox tooltip'
 
-  div.appendChild(checkbox)
+  // Create span for checkbox
+  const span = document.createElement('span')
+  span.className = 'checkbox-custom'
+
+  // Tooltip
+  const tooltipSpan = document.createElement('span')
+  tooltipSpan.className = 'tooltiptext'
+  tooltipSpan.textContent = recipient.description
+
+  label.appendChild(checkbox)
+  label.appendChild(span)
+  label.appendChild(tooltipSpan)
   div.appendChild(label)
 
   // Add keyboard event listeners
@@ -1247,18 +1235,38 @@ function createRecipientSelection() {
 
   // Clear existing checkboxes
   container.innerHTML = ''
+  let heading = container.querySelector('h2')
 
-  // Dodajemy checkboxy z tooltipami
+  // Create selected recipients span if it doesn't exist
+  let selectedRecipientsSpan = document.getElementById('selectedRecipients')
+  if (!selectedRecipientsSpan) {
+    selectedRecipientsSpan = document.createElement('span')
+    selectedRecipientsSpan.id = 'selectedRecipients'
+    heading.appendChild(selectedRecipientsSpan)
+  }
+
+  // Create checkboxes with proper ARIA attributes
   gameState.recipients.forEach((recipient) => {
-    const label = document.createElement('label')
-    label.className = 'recipient-checkbox tooltip' // Twoje style + tooltip
+    const div = document.createElement('div')
+    div.className = 'recipient-checkbox'
+    div.setAttribute('role', 'group')
+    div.setAttribute('aria-label', `Select ${recipient.label} as recipient`)
 
     const checkbox = document.createElement('input')
     checkbox.type = 'checkbox'
+    checkbox.id = `recipient-${recipient.group}`
     checkbox.value = recipient.group
+    checkbox.setAttribute('aria-label', recipient.label)
+    checkbox.setAttribute('tabindex', '0')
 
+    const label = document.createElement('label')
+    label.htmlFor = `recipient-${recipient.group}`
+    label.className = 'recipient-checkbox tooltip'
+    label.textContent = recipient.label
+
+    // Create span for checkbox
     const span = document.createElement('span')
-    span.textContent = recipient.label
+    span.className = 'checkbox-custom'
 
     // Tooltip
     const tooltipSpan = document.createElement('span')
@@ -1268,7 +1276,8 @@ function createRecipientSelection() {
     label.appendChild(checkbox)
     label.appendChild(span)
     label.appendChild(tooltipSpan)
-    container.appendChild(label)
+    div.appendChild(label)
+    container.appendChild(div)
   })
 
   // Set up keyboard navigation between checkboxes
@@ -1280,6 +1289,15 @@ function createRecipientSelection() {
         const nextIndex = e.shiftKey ? index - 1 : index + 1
         if (nextIndex >= 0 && nextIndex < checkboxes.length) {
           checkboxes[nextIndex].focus()
+        } else if (nextIndex >= checkboxes.length) {
+          // If tabbing forward from last checkbox, focus the start button
+          const startButton = document.getElementById('startGame')
+          if (startButton) {
+            startButton.focus()
+          }
+        } else if (nextIndex < 0) {
+          // If shift+tabbing from first checkbox, focus the last checkbox
+          checkboxes[checkboxes.length - 1].focus()
         }
       }
     })
@@ -1508,34 +1526,14 @@ if (!window.location.pathname.includes('test.html')) {
 // Export functions for testing
 if (window.location.pathname.includes('test.html')) {
   window.gameFunctions = {
-    makeGuess,
-    loadData,
-    init,
-    updateScoreDisplay,
-    preloadSounds,
-    playRandomSounds,
-    stopAllSounds,
-    adjustTime,
-    startGuessingPhase,
-    endGuessingPhase,
-    applyGuess,
-    calculatePoints,
-    createSoundGrid,
-    startGameTimer,
-    resetGame,
-    applyRiskFunctions,
-    startGame,
-    updateTimer,
-    endGame,
-    setupEventListeners,
-    createSoundButton,
-    formatRecipientLabels,
-    formatSoundNames,
-    toggleUIElements,
-    setupButtonListeners,
-    manageSoundElement,
-    createRecipientCheckbox,
-    createRecipientSelection,
+    ...Object.fromEntries(
+      Object.entries(window).filter(
+        ([key, value]) =>
+          typeof value === 'function' &&
+          !key.startsWith('_') &&
+          !['alert', 'confirm', 'prompt', 'fetch', 'setTimeout', 'setInterval'].includes(key)
+      )
+    ),
     getGameState: () => gameState,
     resetGameState: () => {
       gameState = {

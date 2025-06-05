@@ -26,6 +26,9 @@ describe('UI tests', function () {
           <div class="score-display">
             <p>Time: <span id="timer">30</span>s</p>
           </div>
+          <div class="time-progress-container" style="display: none">
+            <div class="time-progress-bar" id="timeProgressBar"></div>
+          </div>
         </div>
       `
 
@@ -144,6 +147,9 @@ describe('UI tests', function () {
           </div>
           <div class="score-display">
             <p>Time: <span id="timer">30</span>s</p>
+          </div>
+          <div class="time-progress-container" style="display: none">
+            <div class="time-progress-bar" id="timeProgressBar"></div>
           </div>
         </div>
       `
@@ -319,6 +325,9 @@ describe('UI tests', function () {
           <div class="score-display">
             <p>Time: <span id="timer">30</span>s</p>
           </div>
+          <div class="time-progress-container" style="display: none">
+            <div class="time-progress-bar" id="timeProgressBar"></div>
+          </div>
         </div>
       `
     })
@@ -461,6 +470,9 @@ describe('UI tests', function () {
             <p>Score: <span id="score">0</span></p>
             <p>Time: <span id="timer">60</span>s</p>
           </div>
+          <div class="time-progress-container" style="display: none">
+            <div class="time-progress-bar" id="timeProgressBar"></div>
+          </div>
         </div>
       `
     })
@@ -520,6 +532,9 @@ describe('UI tests', function () {
               <h2 class="guessing-title">Jako słyszałxś <span id="sessionSoundsList"></span></h2>
             </div>
             <button id="playAgain">Play Again</button>
+          </div>
+          <div class="time-progress-container" style="display: none">
+            <div class="time-progress-bar" id="timeProgressBar"></div>
           </div>
         </div>
       `

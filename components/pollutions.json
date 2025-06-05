@@ -6,7 +6,9 @@
         "sound_file": [
             "sounds/road_traffic.ogg"
         ],
-        "sound_file_source": "https://freesound.org/people/kyles/sounds/450558/",
+        "sound_file_sources": [
+            "https://freesound.org/people/kyles/sounds/450558/"
+        ],
         "affects": [
             "ludzie",
             "zwierzęta",
@@ -26,7 +28,9 @@
         "sound_file": [
             "sounds/airplane.ogg"
         ],
-        "sound_file_source": "https://freesound.org/people/TRP/sounds/573806/",
+        "sound_file_sources": [
+            "https://freesound.org/people/TRP/sounds/573806/"
+        ],
         "affects": [
             "ludzie mieszkający w pobliżu lotnisk",
             "ptaki",
@@ -44,7 +48,9 @@
         "sound_file": [
             "sounds/railway.ogg"
         ],
-        "sound_file_source": "https://freesound.org/people/miastodzwiekow/sounds/113178/",
+        "sound_file_sources": [
+            "https://freesound.org/people/miastodzwiekow/sounds/113178/"
+        ],
         "affects": [
             "mieszkańcy w pobliżu torów",
             "społeczności miejskie"
@@ -62,7 +68,9 @@
         "sound_file": [
             "sounds/factory.ogg"
         ],
-        "sound_file_source": "https://freesound.org/people/viertelnachvier/sounds/249637/",
+        "sound_file_sources": [
+            "https://freesound.org/people/viertelnachvier/sounds/249637/"
+        ],
         "affects": [
             "pracownicy",
             "okoliczni mieszkańcy",
@@ -75,13 +83,15 @@
         ]
     },
     {
-        "pollution": "spokojny_ruch_pieszych",
+        "pollution": "ruch_pieszych",
         "amplitude": "30-50 dB",
         "frequency": "stała",
         "sound_file": [
             "sounds/calm_pedestrian_traffic.ogg"
         ],
-        "sound_file_source": "https://freesound.org/people/felix.blume/sounds/705050/",
+        "sound_file_sources": [
+            "https://freesound.org/people/felix.blume/sounds/705050/"
+        ],
         "affects": [
             "piesi",
             "mieszkańcy",

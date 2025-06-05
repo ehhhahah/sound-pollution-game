@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Head content will be loaded dynamically -->
+  </head>
+  <body>
+    <div class="rules-container">
+      <div class="rules-section">
+        <h2>Dźwięki</h2>
+        <ul id="sound-credits" class="sound-credits">
+          <!-- Content will be loaded dynamically -->
+        </ul>
+      </div>
+    </div>
+    <div id="footer-container"></div>
+    <script src="components/loadComponents.js"></script>
+    <script>
+      async function loadSoundCredits() {
+        try {
+          const response = await fetch('components/pollutions.json')
+          const data = await response.json()
+
+          const soundCreditsList = document.getElementById('sound-credits')
+
+          data.forEach((pollution) => {
+            const li = document.createElement('li')
+            const sourcesList = pollution.sound_file_sources
+              .map((source) => {
+                const author = source.split('/people/')[1].split('/')[0]
+                return `<a href="${source}" target="_blank">freesound.org - ${author}</a>`
+              })
+              .join(', ')
+
+            li.innerHTML = `
+              <strong>${pollution.pollution.replace(/_/g, ' ')}</strong>
+              <p>Źródła: ${sourcesList}</p>
+            `
+            soundCreditsList.appendChild(li)
+          })
+        } catch (error) {
+          console.error('Error loading sound credits:', error)
+        }
+      }
+
+      // Load credits when the page loads
+      document.addEventListener('DOMContentLoaded', loadSoundCredits)
+    </script>
+  </body>
+</html>

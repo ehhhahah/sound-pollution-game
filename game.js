@@ -58,35 +58,56 @@ function toggleUIElements(elements, useFlex = false) {
 }
 
 /**
+ * Creates a DOM element with specified attributes and children
+ * @param {string} tag - HTML tag name
+ * @param {Object} attributes - Element attributes
+ * @param {Array} children - Child elements or text content
+ * @returns {HTMLElement} Created element
+ */
+function createElement(tag, attributes = {}, children = []) {
+  const element = document.createElement(tag)
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (key === 'className') {
+      element.className = value
+    } else if (key === 'textContent') {
+      element.textContent = value
+    } else {
+      element.setAttribute(key, value)
+    }
+  })
+  children.forEach((child) => {
+    if (typeof child === 'string') {
+      element.appendChild(document.createTextNode(child))
+    } else {
+      element.appendChild(child)
+    }
+  })
+  return element
+}
+
+/**
  * Creates and returns a sound button element
  * @param {Object} sound - Sound data object
  * @returns {HTMLButtonElement} The created button element
  */
 function createSoundButton(sound) {
-  const button = document.createElement('button')
-  button.className = 'game-button sound-button'
-  button.dataset.sound = sound.pollution
-  button.textContent = sound.pollution.replace(/_/g, ' ').toLowerCase()
-  button.setAttribute('aria-label', `Guess ${sound.pollution.replace(/_/g, ' ')} sound`)
-  button.setAttribute('role', 'button')
+  const button = createElement('button', {
+    className: 'game-button sound-button',
+    'data-sound': sound.pollution,
+    'aria-label': `Guess ${sound.pollution.replace(/_/g, ' ')} sound`,
+    role: 'button',
+    textContent: sound.pollution.replace(/_/g, ' ').toLowerCase()
+  })
 
-  // Add click and touch event listeners
-  button.addEventListener('click', () => makeGuess(sound))
-
-  // Handle touch events
-  const handleTouchStart = (e) => {
-    e.preventDefault() // Prevent double-firing on mobile
+  const handleInteraction = (e) => {
+    if (e.type === 'touchstart') e.preventDefault()
     button.classList.add('active')
     makeGuess(sound)
   }
 
-  const handleTouchEnd = () => {
-    button.classList.remove('active')
-  }
-
-  // Add touch event listeners with proper options
-  button.addEventListener('touchstart', handleTouchStart, { passive: false })
-  button.addEventListener('touchend', handleTouchEnd, { passive: true })
+  button.addEventListener('click', handleInteraction)
+  button.addEventListener('touchstart', handleInteraction, { passive: false })
+  button.addEventListener('touchend', () => button.classList.remove('active'), { passive: true })
 
   return button
 }
@@ -1014,12 +1035,9 @@ function createSoundGrid() {
   soundGrid.setAttribute('role', 'grid')
   soundGrid.setAttribute('aria-label', 'Sound selection grid')
 
-  // Filter out tinnitus sounds from the grid
   const nonTinnitusSounds = gameState.pollutions.filter((sound) => !sound.isTinnitus)
-
   nonTinnitusSounds.forEach((sound) => {
-    const button = createSoundButton(sound)
-    soundGrid.appendChild(button)
+    soundGrid.appendChild(createSoundButton(sound))
   })
 }
 
@@ -1149,11 +1167,12 @@ function resetGame() {
 }
 
 /**
- * Creates and returns a recipient group checkbox element
+ * Creates and manages recipient selection UI
  * @param {Object} recipient - Recipient data object
+ * @param {HTMLElement} container - Container element for checkboxes
  * @returns {HTMLDivElement} The created checkbox element
  */
-function createRecipientCheckbox(recipient) {
+function createRecipientUI(recipient, container) {
   const div = document.createElement('div')
   div.className = 'recipient-checkbox'
   div.setAttribute('role', 'group')
@@ -1169,12 +1188,11 @@ function createRecipientCheckbox(recipient) {
   const label = document.createElement('label')
   label.htmlFor = `recipient-${recipient.group}`
   label.className = 'recipient-checkbox tooltip'
+  label.textContent = recipient.label
 
-  // Create span for checkbox
   const span = document.createElement('span')
   span.className = 'checkbox-custom'
 
-  // Tooltip
   const tooltipSpan = document.createElement('span')
   tooltipSpan.className = 'tooltiptext'
   tooltipSpan.textContent = recipient.description
@@ -1184,42 +1202,45 @@ function createRecipientCheckbox(recipient) {
   label.appendChild(tooltipSpan)
   div.appendChild(label)
 
-  // Add keyboard event listeners
-  checkbox.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      checkbox.checked = !checkbox.checked
-      checkbox.dispatchEvent(new Event('change'))
-    } else if (e.key === 'Tab' && !e.shiftKey) {
-      // If tabbing forward from the last checkbox, focus the start button
-      const checkboxes = document.querySelectorAll('.recipient-checkbox input[type="checkbox"]')
-      const lastCheckbox = checkboxes[checkboxes.length - 1]
-      if (checkbox === lastCheckbox) {
-        e.preventDefault()
-        const startButton = document.getElementById('startGame')
-        if (startButton) {
-          startButton.focus()
-        }
-      }
-    }
-  })
+  // Unified event handling
+  const handleRecipientChange = (e) => {
+    if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return
+    if (e.type === 'keydown') e.preventDefault()
 
-  checkbox.addEventListener('change', () => {
-    console.log('Checkbox changed:', recipient.group, 'checked:', checkbox.checked)
-    if (checkbox.checked) {
+    const isChecked = e.type === 'keydown' ? !checkbox.checked : checkbox.checked
+    checkbox.checked = isChecked
+
+    if (isChecked) {
       gameState.selectedRecipients.push(recipient)
-      console.log('Added recipient:', recipient)
-      console.log('Current selected recipients:', gameState.selectedRecipients)
     } else {
       gameState.selectedRecipients = gameState.selectedRecipients.filter((r) => r.group !== recipient.group)
-      console.log('Removed recipient:', recipient)
-      console.log('Current selected recipients:', gameState.selectedRecipients)
     }
 
-    // Update the selected recipients text
     const selectedRecipientsSpan = document.getElementById('selectedRecipients')
     if (selectedRecipientsSpan) {
       selectedRecipientsSpan.textContent = formatRecipientLabels(gameState.selectedRecipients)
+    }
+  }
+
+  checkbox.addEventListener('click', handleRecipientChange)
+  checkbox.addEventListener('keydown', handleRecipientChange)
+
+  // Keyboard navigation
+  checkbox.addEventListener('keydown', (e) => {
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      const checkboxes = container.querySelectorAll('input[type="checkbox"]')
+      const currentIndex = Array.from(checkboxes).indexOf(checkbox)
+      const nextIndex = e.shiftKey ? currentIndex - 1 : currentIndex + 1
+
+      if (nextIndex >= 0 && nextIndex < checkboxes.length) {
+        checkboxes[nextIndex].focus()
+      } else if (nextIndex >= checkboxes.length) {
+        const startButton = document.getElementById('startGame')
+        if (startButton) startButton.focus()
+      } else if (nextIndex < 0) {
+        checkboxes[checkboxes.length - 1].focus()
+      }
     }
   })
 
@@ -1233,11 +1254,9 @@ function createRecipientSelection() {
   const container = document.getElementById('recipientCheckboxes')
   if (!container) return
 
-  // Clear existing checkboxes
   container.innerHTML = ''
-  let heading = container.querySelector('h2')
+  const heading = container.querySelector('h2')
 
-  // Create selected recipients span if it doesn't exist
   let selectedRecipientsSpan = document.getElementById('selectedRecipients')
   if (!selectedRecipientsSpan) {
     selectedRecipientsSpan = document.createElement('span')
@@ -1245,238 +1264,116 @@ function createRecipientSelection() {
     heading.appendChild(selectedRecipientsSpan)
   }
 
-  // Create checkboxes with proper ARIA attributes
   gameState.recipients.forEach((recipient) => {
-    const div = document.createElement('div')
-    div.className = 'recipient-checkbox'
-    div.setAttribute('role', 'group')
-    div.setAttribute('aria-label', `Select ${recipient.label} as recipient`)
-
-    const checkbox = document.createElement('input')
-    checkbox.type = 'checkbox'
-    checkbox.id = `recipient-${recipient.group}`
-    checkbox.value = recipient.group
-    checkbox.setAttribute('aria-label', recipient.label)
-    checkbox.setAttribute('tabindex', '0')
-
-    const label = document.createElement('label')
-    label.htmlFor = `recipient-${recipient.group}`
-    label.className = 'recipient-checkbox tooltip'
-    label.textContent = recipient.label
-
-    // Create span for checkbox
-    const span = document.createElement('span')
-    span.className = 'checkbox-custom'
-
-    // Tooltip
-    const tooltipSpan = document.createElement('span')
-    tooltipSpan.className = 'tooltiptext'
-    tooltipSpan.textContent = recipient.description
-
-    label.appendChild(checkbox)
-    label.appendChild(span)
-    label.appendChild(tooltipSpan)
-    div.appendChild(label)
-    container.appendChild(div)
+    container.appendChild(createRecipientUI(recipient, container))
   })
+}
 
-  // Set up keyboard navigation between checkboxes
-  const checkboxes = container.querySelectorAll('input[type="checkbox"]')
-  checkboxes.forEach((checkbox, index) => {
-    checkbox.addEventListener('keydown', (e) => {
-      if (e.key === 'Tab') {
-        e.preventDefault()
-        const nextIndex = e.shiftKey ? index - 1 : index + 1
-        if (nextIndex >= 0 && nextIndex < checkboxes.length) {
-          checkboxes[nextIndex].focus()
-        } else if (nextIndex >= checkboxes.length) {
-          // If tabbing forward from last checkbox, focus the start button
-          const startButton = document.getElementById('startGame')
-          if (startButton) {
-            startButton.focus()
-          }
-        } else if (nextIndex < 0) {
-          // If shift+tabbing from first checkbox, focus the last checkbox
-          checkboxes[checkboxes.length - 1].focus()
-        }
-      }
-    })
-  })
+/**
+ * Helper function to select random sounds
+ * @param {number} count - Number of sounds to select
+ * @returns {Array} Array of selected sounds
+ */
+function selectRandomSounds(count) {
+  const availableSounds = [...gameState.pollutions]
+  const selected = []
+  for (let i = 0; i < count; i++) {
+    if (availableSounds.length === 0) break
+    const randomIndex = Math.floor(Math.random() * availableSounds.length)
+    selected.push(availableSounds.splice(randomIndex, 1)[0])
+  }
+  return selected
+}
+
+/**
+ * Helper function to parse amplitude value
+ * @param {string|number} amplitude - Amplitude value to parse
+ * @returns {number} Parsed amplitude value
+ */
+function parseAmplitude(amplitude) {
+  if (!amplitude) return 0
+  if (typeof amplitude === 'number') return amplitude
+  if (amplitude.includes('up to')) {
+    return parseInt(amplitude.match(/\d+/)[0])
+  }
+  if (amplitude.includes('-')) {
+    return parseInt(amplitude.split('-')[0])
+  }
+  return parseInt(amplitude)
 }
 
 /**
  * Applies risk functions for selected recipient groups
  */
 function applyRiskFunctions() {
-  console.log('Applying risk functions for recipients:', gameState.selectedRecipients)
   gameState.selectedRecipients.forEach((recipient) => {
-    console.log('Processing recipient:', recipient.group, 'with risk function:', recipient.risk_function)
     switch (recipient.risk_function) {
       case 'reduced_time':
-        console.log(
-          'Before time reduction - Game time:',
-          gameState.timeRemaining,
-          'Guessing time:',
-          gameState.guessingTimeRemaining
-        )
-        // Reduce game time by 10 seconds, but not below 10 seconds
         gameState.timeRemaining = Math.max(10, gameState.timeRemaining - 10)
-        // Reduce guessing time by 2 seconds, but not below 3 seconds
         gameState.guessingTimeRemaining = Math.max(3, gameState.guessingTimeRemaining - 2)
-        // Update timer display
         updateTimer(gameState.timeRemaining)
-        console.log(
-          'After time reduction - Game time:',
-          gameState.timeRemaining,
-          'Guessing time:',
-          gameState.guessingTimeRemaining
-        )
         break
+
       case 'right_channel_sine':
-        // Add tinnitus sound to selected sounds but don't include it in the guess list
-        const tinnitusSound = {
+        gameState.selectedSounds.push({
           pollution: 'tinnitus',
           sound_file: 'sounds/tinnitus.ogg',
-          amplitude: '0-0', // Set to 0 to ensure it doesn't affect points
-          isTinnitus: true // Mark as tinnitus sound to exclude from guess list
-        }
-        gameState.selectedSounds.push(tinnitusSound)
+          amplitude: '0-0',
+          isTinnitus: true
+        })
         break
 
       case 'loud_sounds_louder':
-        /**
-         * IMPORTANT: Amplitude parsing logic
-         *
-         * The amplitude value can come in different formats:
-         * 1. "up to X dB" format (e.g., "up to 80 dB")
-         * 2. "X-Y" range format (e.g., "50-70")
-         * 3. Plain numeric format (e.g., "50")
-         *
-         * We need to handle all these cases to ensure proper volume adjustment.
-         * The condition `amplitude >= 50` is crucial because:
-         * - Sounds with exactly 50 dB should be amplified (test case requirement)
-         * - This matches the test expectations in game.test.js
-         * - Prevents edge case bugs where sounds at exactly 50 dB are missed
-         *
-         * Note: The volume adjustment of 3dB is applied to any sound with
-         * amplitude of 50 dB or higher, making them louder for players
-         * experiencing the game as a visually impaired person.
-         */
-
-        // Amplify louder sounds by 3dB
         gameState.pollutions.forEach((sound) => {
-          let amplitude
-          if (sound.amplitude) {
-            if (typeof sound.amplitude === 'string' && sound.amplitude.includes('up to')) {
-              amplitude = parseInt(sound.amplitude.match(/\d+/)[0])
-            } else if (typeof sound.amplitude === 'string' && sound.amplitude.includes('-')) {
-              amplitude = parseInt(sound.amplitude.split('-')[0])
-            } else if (!isNaN(parseInt(sound.amplitude))) {
-              amplitude = parseInt(sound.amplitude)
-            }
-          }
-
-          // If amplitude is 50 or above, consider it a loud sound and amplify it
+          const amplitude = parseAmplitude(sound.amplitude)
           if (amplitude >= 50) {
-            sound.volumeAdjustment = 3 // 3dB increase
-            console.log(`Amplifying sound ${sound.pollution} by 3dB`)
+            sound.volumeAdjustment = 3
           }
         })
         break
-      case 'loud_rumble':
-        // Find the industrial sound from pollutions array
-        const industrialSound = gameState.pollutions.find((sound) => sound.pollution === 'przemysł')
-        if (industrialSound) {
-          // If we don't have any regular sounds selected, select new random sounds
-          if (gameState.selectedSounds.length === 0) {
-            // Select new random sounds
-            const numSounds = Math.floor(Math.random() * 5) + 1
-            const availableSounds = [...gameState.pollutions]
-            gameState.selectedSounds = [] // Start with empty array
 
-            // Add random pollution sounds
-            for (let i = 0; i < numSounds; i++) {
-              if (availableSounds.length === 0) break
-              const randomIndex = Math.floor(Math.random() * availableSounds.length)
-              const sound = availableSounds.splice(randomIndex, 1)[0]
-              gameState.selectedSounds.push(sound)
-            }
-          }
-          // Add industrial sound if it's not already in selectedSounds
-          if (!gameState.selectedSounds.some((sound) => sound.pollution === 'przemysł')) {
-            gameState.selectedSounds.push(industrialSound)
-          }
+      case 'loud_rumble':
+        if (gameState.selectedSounds.length === 0) {
+          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
+        }
+        const industrialSound = gameState.pollutions.find((sound) => sound.pollution === 'przemysł')
+        if (industrialSound && !gameState.selectedSounds.some((sound) => sound.pollution === 'przemysł')) {
+          gameState.selectedSounds.push(industrialSound)
         }
         break
-      case 'lowpass_filter':
-        // First, ensure we have sounds selected
-        if (gameState.selectedSounds.length === 0) {
-          // If no sounds are selected, select random sounds first
-          const numSounds = Math.floor(Math.random() * 5) + 1
-          const availableSounds = [...gameState.pollutions]
-          for (let i = 0; i < numSounds; i++) {
-            if (availableSounds.length === 0) break
-            const randomIndex = Math.floor(Math.random() * availableSounds.length)
-            const sound = availableSounds.splice(randomIndex, 1)[0]
-            gameState.selectedSounds.push(sound)
-          }
-        }
 
-        // Apply lowpass filter to all non-tinnitus sounds
+      case 'lowpass_filter':
+        if (gameState.selectedSounds.length === 0) {
+          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
+        }
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
-            sound.lowpassFilter = 200 // Set lowpass filter frequency to 200Hz
-            console.log(`Applied 200Hz lowpass filter to sound: ${sound.pollution}`)
+            sound.lowpassFilter = 200
           }
         })
         break
 
       case 'high_frequency_loss':
-        // First, ensure we have sounds selected
         if (gameState.selectedSounds.length === 0) {
-          // If no sounds are selected, select random sounds first
-          const numSounds = Math.floor(Math.random() * 5) + 1
-          const availableSounds = [...gameState.pollutions]
-          for (let i = 0; i < numSounds; i++) {
-            if (availableSounds.length === 0) break
-            const randomIndex = Math.floor(Math.random() * availableSounds.length)
-            const sound = availableSounds.splice(randomIndex, 1)[0]
-            gameState.selectedSounds.push(sound)
-          }
+          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
         }
-
-        // Apply high frequency loss filter to all non-tinnitus sounds
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
-            sound.lowpassFilter = 1500 // Set lowpass filter frequency to 1.5kHz
-            console.log(`Applied 1.5kHz high frequency loss filter to sound: ${sound.pollution}`)
+            sound.lowpassFilter = 1500
           }
         })
         break
 
       case 'low_amplified':
-        // First, ensure we have sounds selected
         if (gameState.selectedSounds.length === 0) {
-          // If no sounds are selected, select random sounds first
-          const numSounds = Math.floor(Math.random() * 5) + 1
-          const availableSounds = [...gameState.pollutions]
-          for (let i = 0; i < numSounds; i++) {
-            if (availableSounds.length === 0) break
-            const randomIndex = Math.floor(Math.random() * availableSounds.length)
-            const sound = availableSounds.splice(randomIndex, 1)[0]
-            gameState.selectedSounds.push(sound)
-          }
+          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
         }
-
-        // Apply bass boost to all non-tinnitus sounds
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
-            // Add bass boost configuration
             sound.bassBoost = {
-              frequency: 300, // 300Hz cutoff
-              gain: 10 // 10dB boost
+              frequency: 300,
+              gain: 10
             }
-            console.log(`Applied 10dB bass boost below 300Hz to sound: ${sound.pollution}`)
           }
         })
         break
@@ -1488,30 +1385,19 @@ function applyRiskFunctions() {
  * Updates the game over screen to show selected recipient groups
  */
 function updateGameOverScreen() {
-  console.log('Updating game over screen with recipients:', gameState.selectedRecipients)
   const sessionRecipients = document.getElementById('sessionRecipients')
-  if (sessionRecipients) {
-    const recipientsList = sessionRecipients.querySelector('ul')
-    if (recipientsList) {
-      recipientsList.innerHTML = ''
-      if (gameState.selectedRecipients && gameState.selectedRecipients.length > 0) {
-        gameState.selectedRecipients.forEach((recipient) => {
-          console.log('Adding recipient to game over screen:', recipient.label)
-          const li = document.createElement('li')
-          li.textContent = recipient.label
-          recipientsList.appendChild(li)
-        })
-      } else {
-        console.log('No recipients selected')
-        const li = document.createElement('li')
-        li.textContent = 'Brak wybranych grup odbiorców'
-        recipientsList.appendChild(li)
-      }
-    } else {
-      console.log('No ul element found in sessionRecipients')
-    }
+  if (!sessionRecipients) return
+
+  const recipientsList = sessionRecipients.querySelector('ul')
+  if (!recipientsList) return
+
+  recipientsList.innerHTML = ''
+  if (gameState.selectedRecipients?.length > 0) {
+    gameState.selectedRecipients.forEach((recipient) => {
+      recipientsList.appendChild(createElement('li', {}, [recipient.label]))
+    })
   } else {
-    console.log('No sessionRecipients element found')
+    recipientsList.appendChild(createElement('li', {}, ['Brak wybranych grup odbiorców']))
   }
 }
 

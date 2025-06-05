@@ -1142,6 +1142,12 @@ function resetGame() {
   gameState.selectedRecipients = []
   gameState.isLoading = false
 
+  // Clear the selectedRecipients span text content
+  const selectedRecipientsSpan = document.getElementById('selectedRecipients')
+  if (selectedRecipientsSpan) {
+    selectedRecipientsSpan.textContent = ''
+  }
+
   updateScoreDisplay()
   updateTimer(30)
 
@@ -1211,7 +1217,9 @@ function createRecipientUI(recipient, container) {
     checkbox.checked = isChecked
 
     if (isChecked) {
-      gameState.selectedRecipients.push(recipient)
+      if (!gameState.selectedRecipients.some((r) => r.group === recipient.group)) {
+        gameState.selectedRecipients.push(recipient)
+      }
     } else {
       gameState.selectedRecipients = gameState.selectedRecipients.filter((r) => r.group !== recipient.group)
     }
@@ -1224,6 +1232,7 @@ function createRecipientUI(recipient, container) {
 
   checkbox.addEventListener('click', handleRecipientChange)
   checkbox.addEventListener('keydown', handleRecipientChange)
+  checkbox.addEventListener('change', handleRecipientChange)
 
   // Keyboard navigation
   checkbox.addEventListener('keydown', (e) => {
@@ -1255,7 +1264,14 @@ function createRecipientSelection() {
   if (!container) return
 
   container.innerHTML = ''
-  const heading = container.querySelector('h2')
+
+  // Create heading if it doesn't exist
+  let heading = container.querySelector('h2')
+  if (!heading) {
+    heading = document.createElement('h2')
+    heading.textContent = 'Select Recipients'
+    container.appendChild(heading)
+  }
 
   let selectedRecipientsSpan = document.getElementById('selectedRecipients')
   if (!selectedRecipientsSpan) {

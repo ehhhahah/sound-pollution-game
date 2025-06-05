@@ -4,7 +4,9 @@ describe('Recipients tests', function () {
       window.gameFunctions.resetGameState()
       document.body.innerHTML = `
         <div class="game-container">
-          <div id="recipientCheckboxes"></div>
+          <div id="recipientCheckboxes">
+            <h2>Będę słuchać jako <span id="selectedRecipients">test 1, test 2</span></h2>
+          </div>
         </div>
       `
     })
@@ -16,7 +18,7 @@ describe('Recipients tests', function () {
         label: 'Test Recipient',
         risk_function: 'reduced_time'
       }
-      const checkbox = window.gameFunctions.createRecipientCheckbox(recipient)
+      const checkbox = window.gameFunctions.createRecipientUI(recipient, document.getElementById('recipientCheckboxes'))
       document.getElementById('recipientCheckboxes').appendChild(checkbox)
 
       const input = checkbox.querySelector('input')
@@ -35,7 +37,7 @@ describe('Recipients tests', function () {
       }
       gameState.selectedRecipients.push(recipient)
 
-      const checkbox = window.gameFunctions.createRecipientCheckbox(recipient)
+      const checkbox = window.gameFunctions.createRecipientUI(recipient, document.getElementById('recipientCheckboxes'))
       document.getElementById('recipientCheckboxes').appendChild(checkbox)
 
       const input = checkbox.querySelector('input')
@@ -64,7 +66,10 @@ describe('Recipients tests', function () {
       ]
 
       recipients.forEach((recipient) => {
-        const checkbox = window.gameFunctions.createRecipientCheckbox(recipient)
+        const checkbox = window.gameFunctions.createRecipientUI(
+          recipient,
+          document.getElementById('recipientCheckboxes')
+        )
         document.getElementById('recipientCheckboxes').appendChild(checkbox)
         const input = checkbox.querySelector('input')
         input.checked = true
@@ -73,6 +78,25 @@ describe('Recipients tests', function () {
 
       expect(gameState.selectedRecipients).to.have.lengthOf(2)
       expect(gameState.selectedRecipients).to.deep.include.members(recipients)
+    })
+
+    it('should clear selected recipients UI when game is reset', function () {
+      const gameState = window.gameFunctions.getGameState()
+      gameState.selectedRecipients = [
+        { group: 'test1', label: 'Test 1', risk_function: 'reduced_time' },
+        { group: 'test2', label: 'Test 2', risk_function: 'right_channel_sine' }
+      ]
+
+      // Verify initial state
+      const selectedRecipientsSpan = document.getElementById('selectedRecipients')
+      expect(selectedRecipientsSpan.textContent).to.equal('test 1, test 2')
+
+      // Reset the game
+      window.gameFunctions.resetGame()
+
+      // Verify both the game state and UI are cleared
+      expect(gameState.selectedRecipients).to.be.empty
+      expect(selectedRecipientsSpan.textContent).to.be.empty
     })
   })
 
@@ -147,43 +171,42 @@ describe('Recipients tests', function () {
     })
 
     it('should create recipient selection UI', async function () {
+      // Reset game state to ensure clean state
+      window.gameFunctions.resetGameState()
+
       document.body.innerHTML = `
         <div class="game-container">
+          <h2>Będę słuchać jako <span id="selectedRecipients"></span></h2>
           <div id="recipientCheckboxes"></div>
         </div>
       `
 
-      // Mock fetch to return test recipients
-      const originalFetch = window.fetch
-      window.fetch = (url) => {
-        if (url.includes('recipients.json')) {
-          return Promise.resolve({
-            json: () =>
-              Promise.resolve([
-                {
-                  group: 'test1',
-                  label: 'Test 1',
-                  risk_function: 'reduced_time'
-                },
-                {
-                  group: 'test2',
-                  label: 'Test 2',
-                  risk_function: 'right_channel_sine'
-                }
-              ])
-          })
+      // Set up test recipients directly in gameState
+      const gameState = window.gameFunctions.getGameState()
+      gameState.recipients = [
+        {
+          group: 'test1',
+          label: 'Test 1',
+          risk_function: 'reduced_time'
+        },
+        {
+          group: 'test2',
+          label: 'Test 2',
+          risk_function: 'right_channel_sine'
         }
-        return originalFetch(url)
-      }
+      ]
 
-      await window.gameFunctions.init()
       window.gameFunctions.createRecipientSelection()
 
-      const checkboxes = document.querySelectorAll('.recipient-checkbox')
-      expect(checkboxes).to.have.lengthOf(2) // Based on mocked recipients
+      // Use a more specific selector to get only the direct checkboxes
+      const checkboxes = document.querySelectorAll('#recipientCheckboxes > .recipient-checkbox')
+      expect(checkboxes).to.have.lengthOf(2) // Based on test recipients
 
-      // Restore original fetch
-      window.fetch = originalFetch
+      // Verify the checkboxes have the correct content
+      const checkbox1 = checkboxes[0]
+      const checkbox2 = checkboxes[1]
+      expect(checkbox1.querySelector('label').textContent).to.equal('Test 1')
+      expect(checkbox2.querySelector('label').textContent).to.equal('Test 2')
     })
   })
 })

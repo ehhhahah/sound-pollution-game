@@ -1,37 +1,44 @@
 [
-    {
-        "group": "spektrum autyzmu",
-        "label": "ososba na spektrum autyzmu",
-        "risk_function": "reduced_time"
-    },
-    {
-        "group": "tinnitus",
-        "label": "osoba narażona na hałas",
-        "risk_function": "right_channel_sine"
-    },
-    {
-        "group": "niewidomi",
-        "label": "osoba niewidoma",
-        "risk_function": "loud_sounds_louder"
-    },
-    {
-        "group": "ubodzy",
-        "label": "osoba uboga",
-        "risk_function": "loud_rumble"
-    },
-    {
-        "group": "płód",
-        "label": "płód",
-        "risk_function": "lowpass_filter"
-    },
-    {
-        "group": "seniorzy",
-        "label": "osoba starsza",
-        "risk_function": "high_frequency_loss"
-    },
-    {
-        "group": "pies",
-        "label": "pies",
-        "risk_function": "low_amplified"
-    }
+{
+"group": "spektrum autyzmu",
+"label": "osoba na spektrum autyzmu",
+"risk_function": "reduced_time",
+"description": "Osoby na spektrum autyzmu są często nadwrażliwe na dźwięki, przez co hałas może powodować u nich szybkie zmęczenie, rozproszenie i trudności z koncentracją. W grze skrócony czas rozgrywki odzwierciedla trudności ze skupieniem w środowisku pełnym bodźców dźwiękowych."
+},
+{
+"group": "tinnitus",
+"label": "osoba narażona na hałas",
+"risk_function": "right_channel_sine",
+"description": "Osoby narażone na hałas mogą doświadczać szumów usznych (tinnitus), które objawiają się jako nieprzyjemne dźwięki (np. piski, szumy) słyszane bez zewnętrznego źródła. W grze efekt ten symulowany jest przez dodatkowy dźwięk w jednym kanale, co utrudnia odbiór innych dźwięków i komunikację."
+},
+{
+"group": "niewidomi",
+"label": "osoba niewidoma",
+"risk_function": "loud_sounds_louder",
+"description": "Osoby niewidome polegają na słuchu w orientacji przestrzennej. Głośne i nagłe dźwięki mogą być dla nich szczególnie dezorientujące lub stresujące, a hałas utrudnia im codzienne funkcjonowanie. W grze głośne dźwięki są dodatkowo wzmacniane, by oddać tę wrażliwość."
+},
+{
+"group": "ubodzy",
+"label": "osoba uboga",
+"risk_function": "loud_rumble",
+"description": "Osoby o niskim statusie ekonomicznym często mieszkają w miejscach o wysokim poziomie hałasu (np. przy ruchliwych ulicach, w pobliżu przemysłu), co negatywnie wpływa na ich zdrowie i samopoczucie. W grze tło dźwiękowe jest stale zakłócane niskim, dudniącym hałasem, co utrudnia skupienie i komfort."
+},
+{
+"group": "płód",
+"label": "płód",
+"risk_function": "lowpass_filter",
+"description": "Płód w łonie matki odbiera dźwięki w sposób mocno zniekształcony przez tkanki i płyn owodniowy – wysokie częstotliwości są tłumione, a dźwięki docierają głównie jako niskie, przytłumione odgłosy. W grze symulowane jest to filtrem dolnoprzepustowym."
+},
+{
+"group": "seniorzy",
+"label": "osoba starsza",
+"risk_function": "high_frequency_loss",
+"description": "Osoby starsze często doświadczają presbyakuzji, czyli pogorszenia słuchu w zakresie wysokich częstotliwości. Hałas może być dla nich szczególnie uciążliwy, a zrozumienie mowy w trudnych warunkach akustycznych staje się wyzwaniem. W grze wysokie tony są wyciszone, co utrudnia odbiór niektórych informacji dźwiękowych."
+},
+{
+"group": "pies",
+"label": "pies",
+"risk_function": "low_amplified",
+"description": "Psy słyszą szerszy zakres częstotliwości niż ludzie i są bardziej wrażliwe na dźwięki, zwłaszcza te wysokie. Hałas może wywoływać u nich niepokój, lęk lub nawet panikę. W grze dźwięki są dla psa głośniejsze i bardziej przenikliwe, co wpływa na jego zachowanie."
+}
 ]

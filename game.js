@@ -179,6 +179,33 @@ function manageSoundElement(sound, shouldPlay) {
       audio.gainNode.connect(audio.audioContext.destination)
     }
 
+    // Apply highpass filter if specified
+    if (sound.highpassFilter !== undefined && sound.highpassFilter !== null) {
+      // Disconnect existing filter if it exists
+      if (audio.filterNode) {
+        audio.filterNode.disconnect()
+      }
+
+      // Create and configure highpass filter
+      audio.filterNode = audio.audioContext.createBiquadFilter()
+      audio.filterNode.type = 'highpass'
+      audio.filterNode.frequency.value = sound.highpassFilter
+      audio.filterNode.Q.value = 1 // Quality factor for a gentle rolloff
+
+      // Disconnect gain node from destination
+      audio.gainNode.disconnect()
+
+      // Connect the chain: source -> gain -> filter -> destination
+      audio.gainNode.connect(audio.filterNode)
+      audio.filterNode.connect(audio.audioContext.destination)
+
+      console.log(`Connected highpass filter for ${sound.pollution} at ${sound.highpassFilter}Hz`)
+    } else if (audio.filterNode) {
+      // If no filter is specified but one exists, remove it
+      audio.filterNode.disconnect()
+      audio.gainNode.connect(audio.audioContext.destination)
+    }
+
     // Apply bass boost if specified
     if (sound.bassBoost !== undefined && sound.bassBoost !== null) {
       // Disconnect existing bass boost if it exists
@@ -205,6 +232,52 @@ function manageSoundElement(sound, shouldPlay) {
     } else if (audio.bassBoostNode) {
       // If no bass boost is specified but one exists, remove it
       audio.bassBoostNode.disconnect()
+      audio.gainNode.connect(audio.audioContext.destination)
+    }
+
+    // Apply reverbation if specified
+    if (sound.reverbation !== undefined && sound.reverbation !== null) {
+      // Disconnect existing reverb if it exists
+      if (audio.reverbNode) {
+        audio.reverbNode.disconnect()
+      }
+
+      // Create and configure reverb
+      audio.reverbNode = audio.audioContext.createConvolver()
+
+      // Create impulse response for reverb
+      const sampleRate = audio.audioContext.sampleRate
+      const length = sampleRate * 2 // 2 seconds of reverb
+      const impulse = audio.audioContext.createBuffer(2, length, sampleRate)
+
+      // Generate impulse response
+      for (let channel = 0; channel < 2; channel++) {
+        const channelData = impulse.getChannelData(channel)
+        for (let i = 0; i < length; i++) {
+          // Exponential decay
+          channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2)
+        }
+      }
+
+      audio.reverbNode.buffer = impulse
+
+      // Create wet/dry mix
+      audio.reverbGainNode = audio.audioContext.createGain()
+      audio.reverbGainNode.gain.value = 0.3 // Adjust this value to control reverb intensity
+
+      // Disconnect gain node from destination
+      audio.gainNode.disconnect()
+
+      // Connect the chain: source -> gain -> reverb -> reverbGain -> destination
+      audio.gainNode.connect(audio.reverbNode)
+      audio.reverbNode.connect(audio.reverbGainNode)
+      audio.reverbGainNode.connect(audio.audioContext.destination)
+
+      console.log(`Connected reverbation for ${sound.pollution}`)
+    } else if (audio.reverbNode) {
+      // If no reverb is specified but one exists, remove it
+      audio.reverbNode.disconnect()
+      audio.reverbGainNode.disconnect()
       audio.gainNode.connect(audio.audioContext.destination)
     }
 
@@ -381,8 +454,10 @@ async function preloadSounds() {
     const tinnitusSounds = gameState.selectedSounds.filter((sound) => sound.isTinnitus)
     for (const tinnitusSound of tinnitusSounds) {
       try {
-        // Get a random sound file from the array
-        const soundFile = tinnitusSound.sound_file[Math.floor(Math.random() * tinnitusSound.sound_file.length)]
+        // Get sound file - handle both array and string cases
+        const soundFile = Array.isArray(tinnitusSound.sound_file)
+          ? tinnitusSound.sound_file[Math.floor(Math.random() * tinnitusSound.sound_file.length)]
+          : tinnitusSound.sound_file
 
         // Check if sound is already in cache
         if (soundCache.has(soundFile)) {
@@ -624,7 +699,7 @@ function adjustTime(adjustment) {
  */
 function formatRecipientLabels(recipients) {
   if (!recipients?.length) {
-    return ''
+    return 'ty'
   }
 
   const formatRecipient = (recipient) => recipient.label.toLowerCase()
@@ -1182,8 +1257,8 @@ function createRecipientUI(recipient, container) {
   span.className = 'checkbox-custom'
 
   const tooltipSpan = document.createElement('span')
-  tooltipSpan.className = 'tooltiptext'
-  tooltipSpan.textContent = recipient.description
+  tooltipSpan.className = 'tooltiptext tooltiptext-dynamic'
+  tooltipSpan.innerHTML = `<p>${recipient.description}</p><a class="link" href="${recipient.source}" target="_blank">Źródło</a>`
 
   label.appendChild(checkbox)
   label.appendChild(span)
@@ -1368,6 +1443,37 @@ function applyRiskFunctions() {
           }
         })
         break
+
+      case 'reverbation':
+        if (gameState.selectedSounds.length === 0) {
+          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
+        }
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            sound.reverbation = true
+          }
+        })
+        break
+
+      case 'distorted_song_pattern':
+        gameState.selectedSounds.push({
+          pollution: 'birds',
+          sound_file: 'sounds/birds_393699.ogg',
+          amplitude: '0-0',
+          isTinnitus: true
+        })
+        break
+
+      case 'highpass_filter':
+        if (gameState.selectedSounds.length === 0) {
+          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
+        }
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            sound.highpassFilter = 2000
+          }
+        })
+        break
     }
   })
 }
@@ -1387,8 +1493,6 @@ function updateGameOverScreen() {
     gameState.selectedRecipients.forEach((recipient) => {
       recipientsList.appendChild(createElement('li', {}, [recipient.label]))
     })
-  } else {
-    recipientsList.appendChild(createElement('li', {}, ['Brak wybranych grup odbiorców']))
   }
 }
 

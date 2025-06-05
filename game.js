@@ -1245,37 +1245,13 @@ function createRecipientSelection() {
   const container = document.getElementById('recipientCheckboxes')
   if (!container) return
 
-  // Ensure the recipient selection container exists
-  let recipientSelection = document.querySelector('.recipient-selection')
-  if (!recipientSelection) {
-    recipientSelection = document.createElement('div')
-    recipientSelection.className = 'recipient-selection'
-    container.parentNode.insertBefore(recipientSelection, container)
-  }
-
-  // Ensure the h2 element exists
-  let h2 = recipientSelection.querySelector('h2')
-  if (!h2) {
-    h2 = document.createElement('h2')
-    recipientSelection.insertBefore(h2, recipientSelection.firstChild)
-  }
-
-  // Create the selected recipients span if it doesn't exist
-  let selectedRecipientsSpan = document.getElementById('selectedRecipients')
-  if (!selectedRecipientsSpan) {
-    selectedRecipientsSpan = document.createElement('span')
-    selectedRecipientsSpan.id = 'selectedRecipients'
-    h2.appendChild(selectedRecipientsSpan)
-  }
-
   // Clear existing checkboxes
   container.innerHTML = ''
 
-  // Create and append checkboxes
+  // Dodajemy checkboxy z tooltipami
   gameState.recipients.forEach((recipient) => {
-    const wrapper = document.createElement('label')
-    wrapper.className = 'tooltip' // do stylowania tooltips
-    // nie zmieniamy display/margin, zostawiamy stylowanie CSS
+    const label = document.createElement('label')
+    label.className = 'recipient-checkbox tooltip' // Twoje style + tooltip
 
     const checkbox = document.createElement('input')
     checkbox.type = 'checkbox'
@@ -1284,15 +1260,15 @@ function createRecipientSelection() {
     const span = document.createElement('span')
     span.textContent = recipient.label
 
-    // Tooltip text
+    // Tooltip
     const tooltipSpan = document.createElement('span')
     tooltipSpan.className = 'tooltiptext'
     tooltipSpan.textContent = recipient.description
 
-    wrapper.appendChild(checkbox)
-    wrapper.appendChild(span)
-    wrapper.appendChild(tooltipSpan)
-    container.appendChild(wrapper)
+    label.appendChild(checkbox)
+    label.appendChild(span)
+    label.appendChild(tooltipSpan)
+    container.appendChild(label)
   })
 
   // Set up keyboard navigation between checkboxes

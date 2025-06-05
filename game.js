@@ -974,24 +974,6 @@ function startSoundChanges() {
 async function startGame() {
   console.log('Starting game with selected recipients:', gameState.selectedRecipients)
 
-  // Create live region if it doesn't exist
-  let liveRegion = document.getElementById('game-live-region')
-  if (!liveRegion) {
-    liveRegion = document.createElement('div')
-    liveRegion.id = 'game-live-region'
-    liveRegion.setAttribute('aria-live', 'polite')
-    liveRegion.setAttribute('aria-atomic', 'true')
-    liveRegion.style.position = 'absolute'
-    liveRegion.style.width = '1px'
-    liveRegion.style.height = '1px'
-    liveRegion.style.overflow = 'hidden'
-    liveRegion.style.clip = 'rect(0 0 0 0)'
-    document.body.appendChild(liveRegion)
-  }
-
-  // Announce game start
-  liveRegion.textContent = 'Game started. Listen carefully to identify the sounds.'
-
   toggleUIElements({
     gameControls: 'none',
     gamePlay: 'block',
@@ -1265,18 +1247,11 @@ function createRecipientSelection() {
 
   container.innerHTML = ''
 
-  // Create heading if it doesn't exist
-  let heading = container.querySelector('h2')
-  if (!heading) {
-    heading = document.createElement('h2')
-    heading.textContent = 'Select Recipients'
-    container.appendChild(heading)
-  }
-
   let selectedRecipientsSpan = document.getElementById('selectedRecipients')
   if (!selectedRecipientsSpan) {
     selectedRecipientsSpan = document.createElement('span')
     selectedRecipientsSpan.id = 'selectedRecipients'
+    let heading = container.querySelector('h2')
     heading.appendChild(selectedRecipientsSpan)
   }
 

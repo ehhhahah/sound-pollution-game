@@ -101,7 +101,12 @@ describe('Functional tests', function () {
                 <button id="decreaseTime">-10s</button>
                 <button id="increaseTime">+10s</button>
               </div>
-              <div id="recipientCheckboxes"></div>
+              <div class="recipient-selection">
+                <h2>Będę słuchać jako <span id="selectedRecipients"></span></h2>
+                <div id="recipientCheckboxes">
+                  <!-- Recipient checkboxes will be dynamically added here -->
+                </div>
+              </div>
             </div>
             <div id="gamePlay" style="display: none">
               <div class="sound-grid"></div>
@@ -242,13 +247,6 @@ describe('Functional tests', function () {
         expect(startGameBtn.getAttribute('aria-label')).to.equal('Start the game')
         expect(soundGrid.getAttribute('role')).to.equal('grid')
         expect(soundGrid.getAttribute('aria-label')).to.equal('Sound selection grid')
-      })
-
-      it('should announce state changes', function () {
-        window.gameFunctions.startGame()
-        const liveRegion = document.getElementById('game-live-region')
-        expect(liveRegion).to.exist
-        expect(liveRegion.textContent).to.include('Game started')
       })
     })
   })

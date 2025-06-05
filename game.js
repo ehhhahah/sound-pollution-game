@@ -1271,9 +1271,62 @@ function createRecipientSelection() {
   // Clear existing checkboxes
   container.innerHTML = ''
 
+  // Helper to create tooltip
+  function showTooltip(target, text) {
+    let tooltip = document.createElement('div')
+    tooltip.className = 'recipient-tooltip'
+    tooltip.textContent = text
+    tooltip.setAttribute('role', 'tooltip')
+    // Position tooltip
+    tooltip.style.position = 'absolute'
+    tooltip.style.left = `${target.getBoundingClientRect().right + window.scrollX + 8}px`
+    tooltip.style.top = `${target.getBoundingClientRect().top + window.scrollY}px`
+    tooltip.style.zIndex = 1000
+    tooltip.style.background = '#fff'
+    tooltip.style.border = '1px solid #aaa'
+    tooltip.style.padding = '8px'
+    tooltip.style.borderRadius = '4px'
+    tooltip.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)'
+    tooltip.style.maxWidth = '220px'
+    tooltip.style.fontSize = '0.95em'
+    document.body.appendChild(tooltip)
+    target._tooltip = tooltip
+  }
+
+  function hideTooltip(target) {
+    if (target._tooltip) {
+      document.body.removeChild(target._tooltip)
+      target._tooltip = null
+    }
+  }
+
   // Create and append checkboxes
   gameState.recipients.forEach((recipient) => {
-    container.appendChild(createRecipientCheckbox(recipient))
+    const wrapper = document.createElement('label')
+    wrapper.style.position = 'relative'
+    wrapper.style.display = 'block'
+    wrapper.style.marginBottom = '8px'
+
+    const checkbox = document.createElement('input')
+    checkbox.type = 'checkbox'
+    checkbox.value = recipient.group
+    checkbox.setAttribute('aria-describedby', `${recipient.group}-desc`)
+
+    const span = document.createElement('span')
+    span.textContent = recipient.label
+
+    // Tooltip events
+    const show = () => showTooltip(wrapper, recipient.description)
+    const hide = () => hideTooltip(wrapper)
+
+    wrapper.addEventListener('mouseenter', show)
+    wrapper.addEventListener('mouseleave', hide)
+    wrapper.addEventListener('focusin', show)
+    wrapper.addEventListener('focusout', hide)
+
+    wrapper.appendChild(checkbox)
+    wrapper.appendChild(span)
+    container.appendChild(wrapper)
   })
 
   // Set up keyboard navigation between checkboxes

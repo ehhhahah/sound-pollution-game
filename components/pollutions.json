@@ -4,10 +4,12 @@
         "amplitude": "45-75 dB",
         "frequency": "stała",
         "sound_file": [
-            "sounds/road_traffic.ogg"
+            "sounds/road_traffic_450558.ogg",
+            "sounds/road_traffic_807727.ogg"
         ],
         "sound_file_sources": [
-            "https://freesound.org/people/kyles/sounds/450558/"
+            "https://freesound.org/people/kyles/sounds/450558/",
+            "https://freesound.org/people/christos71/sounds/807727/"
         ],
         "affects": [
             "ludzie",
@@ -66,10 +68,12 @@
         "amplitude": "60-134 dB",
         "frequency": "ciągła podczas godzin pracy",
         "sound_file": [
-            "sounds/factory.ogg"
+            "sounds/factory_249637.ogg",
+            "sounds/factory_529032.ogg"
         ],
         "sound_file_sources": [
-            "https://freesound.org/people/viertelnachvier/sounds/249637/"
+            "https://freesound.org/people/viertelnachvier/sounds/249637/",
+            "https://freesound.org/people/szegvari/sounds/529032/"
         ],
         "affects": [
             "pracownicy",

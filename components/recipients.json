@@ -40,5 +40,18 @@
         "label": "ptak żyjący w środowisku miejskim",
         "risk_function": "distorted_song_pattern",
         "description": "Ptaki żyjące w środowisku miejskim narażone na hałas miejski rozwijają upośledzone wzorce śpiewu z powodu zakłóceń w nauce wokalizacji. Ich pieśni stają się mniej precyzyjne, co utrudnia komunikację i przywabianie partnerów. Dodatkowo chroniczny stres wywołany hałasem osłabia ich układ odpornościowy, prowadząc do niższej przeżywalności. W grze odtworzony będzie zniekształcony śpiew ptaków."
+    },
+    {
+        "group": "nietoperze",
+        "label": "nietoperz",
+        "risk_function": "reverbation",
+        "description": "Nietoperze polegają na echolokacji podczas nawigacji. Hałas środowiskowy je dezorientuje, powodując błędne interpretacje sygnałów powrotnych i trudności w poruszaniu się. Może to prowadzić do przypadkowego wlatywania do budynków. W grze sygnały sonarowe są zakłócane fałszywymi echami."
+    },
+    {
+        "group": "grzybnia",
+        "label": "grzybnia",
+        "risk_function": "lowpass_filter",
+        "description": "Wstępne badania sugerują, że hałas o częstotliwościach 50–500 Hz (np. generowany przez ciężki sprzęt budowlany) alteruje strukturę mikrobiomu glebowego, hamując wzrost grzybni mikoryzowych kluczowych dla przyswajania składników odżywczych przez drzewa",
+        "source": "https://link.springer.com/article/10.1007/s13765-013-3088-7"
     }
 ]

@@ -1476,6 +1476,19 @@ function applyRiskFunctions() {
         })
         break
 
+      case 'bandpass_filter':
+        if (gameState.selectedSounds.length === 0) {
+          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
+        }
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            // Create bandpass filter by combining lowpass and highpass filters
+            sound.lowpassFilter = 2000
+            sound.highpassFilter = 500
+          }
+        })
+        break
+
       case 'no_nature':
         const anthropogenicSounds = gameState.pollutions.filter((sound) => sound.is_antropo)
         gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1, anthropogenicSounds)

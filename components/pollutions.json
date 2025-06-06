@@ -124,6 +124,31 @@
         "is_antropo": true
     },
     {
+        "pollution": "pszczoła",
+        "amplitude": "30-80 dB",
+        "frequency": "ciągła, sezonowa (wiosna-lato, głównie w dzień)",
+        "sound_file": [
+            "sounds/bee_584018.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/felix.blume/sounds/584018/"
+        ],
+        "affects": [
+            "osoby przebywające w pobliżu uli lub kwitnących roślin",
+            "pszczelarze",
+            "osoby uczulone na użądlenia",
+            "dzika przyroda"
+        ],
+        "existence": [
+            "pasieki",
+            "ogrody",
+            "sady",
+            "łąki",
+            "tereny rolnicze"
+        ],
+        "is_antropo": false
+    },
+    {
         "pollution": "ruch_pieszych",
         "amplitude": "30-50 dB",
         "frequency": "stała",
@@ -213,6 +238,34 @@
         "existence": [
             "trasy lotnicze",
             "obszary w pobliżu lotnisk"
+        ],
+        "is_antropo": true
+    },
+    {
+        "pollution": "tłum",
+        "amplitude": "60-100 dB",
+        "frequency": "zmienna, zależna od wydarzeń i pory dnia",
+        "sound_file": [
+            "sounds/crowd_269006.ogg",
+            "sounds/crowd_467475.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/lwdickens/sounds/269006/",
+            "https://freesound.org/people/szalonegacie/sounds/467475/"
+        ],
+        "affects": [
+            "mieszkańcy centrów miast",
+            "osoby pracujące w pobliżu miejsc publicznych",
+            "uczestnicy wydarzeń masowych",
+            "osoby wrażliwe na hałas"
+        ],
+        "existence": [
+            "place publiczne",
+            "stadiony",
+            "ulice handlowe",
+            "dworce",
+            "parki rozrywki",
+            "festiwale i koncerty"
         ],
         "is_antropo": true
     }

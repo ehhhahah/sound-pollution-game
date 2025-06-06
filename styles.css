@@ -213,36 +213,36 @@ h1 {
 
 .sound-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: var(--spacing-md);
   margin-bottom: var(--spacing-lg);
   width: 100%;
   justify-items: center;
+  padding: 0 var(--spacing-sm);
 }
 
-/* When there's only one item left */
-.sound-grid:has(> *:only-child) {
-  grid-template-columns: 1fr;
+/* Responsive grid adjustments */
+@media (min-width: 1200px) {
+  .sound-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
-/* When there are two items left */
-.sound-grid:has(> *:nth-last-child(2):first-child) {
-  grid-template-columns: repeat(2, 1fr);
+@media (max-width: 768px) {
+  .sound-grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--spacing-sm);
+  }
 }
 
-/* When there are three items left */
-.sound-grid:has(> *:nth-last-child(3):first-child) {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* When there are four items left */
-.sound-grid:has(> *:nth-last-child(4):first-child) {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-.sound-grid > *:last-child {
-  grid-column: 1 / -1;
-  width: 100%;
+@media (max-width: 480px) {
+  .sound-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--spacing-xs);
+  }
 }
 
 .sound-button {
@@ -478,14 +478,7 @@ header a:hover {
   text-decoration: underline;
 }
 
-
 @media (max-width: 768px) {
-  .sound-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-sm);
-    padding: 0 var(--spacing-sm);
-  }
-
   .sound-button {
     margin: 0.2em 0;
     padding: 0.3em 0.8em;

@@ -152,74 +152,79 @@ function manageSoundElement(sound, shouldPlay) {
       audio.gainNode.gain.value = 1.0
     }
 
+    // Disconnect existing nodes to rebuild the chain
+    if (audio.filterNode) {
+      audio.filterNode.disconnect()
+    }
+    if (audio.bassBoostNode) {
+      audio.bassBoostNode.disconnect()
+    }
+    if (audio.reverbNode) {
+      audio.reverbNode.disconnect()
+      if (audio.reverbGainNode) {
+        audio.reverbGainNode.disconnect()
+      }
+    }
+    audio.gainNode.disconnect()
+
+    // Start with the source connected to gain
+    audio.source.connect(audio.gainNode)
+
     // Apply lowpass filter if specified
     if (sound.lowpassFilter !== undefined && sound.lowpassFilter !== null) {
-      // Disconnect existing filter if it exists
-      if (audio.filterNode) {
-        audio.filterNode.disconnect()
-      }
-
       // Create and configure lowpass filter
       audio.filterNode = audio.audioContext.createBiquadFilter()
       audio.filterNode.type = 'lowpass'
       audio.filterNode.frequency.value = sound.lowpassFilter
       audio.filterNode.Q.value = 1 // Quality factor for a gentle rolloff
 
-      // Disconnect gain node from destination
-      audio.gainNode.disconnect()
-
-      // Connect the chain: source -> gain -> filter -> destination
+      // Connect gain to filter
       audio.gainNode.connect(audio.filterNode)
+      // Connect filter to destination
       audio.filterNode.connect(audio.audioContext.destination)
 
       console.log(`Connected lowpass filter for ${sound.pollution} at ${sound.lowpassFilter}Hz`)
-    } else if (audio.filterNode) {
-      // If no filter is specified but one exists, remove it
-      audio.filterNode.disconnect()
+    } else {
+      // If no filter, connect gain directly to destination
       audio.gainNode.connect(audio.audioContext.destination)
     }
 
     // Apply highpass filter if specified
     if (sound.highpassFilter !== undefined && sound.highpassFilter !== null) {
-      // Disconnect existing filter if it exists
+      // Create and configure highpass filter
+      audio.highpassNode = audio.audioContext.createBiquadFilter()
+      audio.highpassNode.type = 'highpass'
+      audio.highpassNode.frequency.value = sound.highpassFilter
+      audio.highpassNode.Q.value = 1
+
+      // Disconnect existing connections
       if (audio.filterNode) {
         audio.filterNode.disconnect()
       }
-
-      // Create and configure highpass filter
-      audio.filterNode = audio.audioContext.createBiquadFilter()
-      audio.filterNode.type = 'highpass'
-      audio.filterNode.frequency.value = sound.highpassFilter
-      audio.filterNode.Q.value = 1 // Quality factor for a gentle rolloff
-
-      // Disconnect gain node from destination
       audio.gainNode.disconnect()
 
-      // Connect the chain: source -> gain -> filter -> destination
-      audio.gainNode.connect(audio.filterNode)
-      audio.filterNode.connect(audio.audioContext.destination)
+      // Connect the chain: source -> gain -> highpass -> destination
+      audio.gainNode.connect(audio.highpassNode)
+      audio.highpassNode.connect(audio.audioContext.destination)
 
       console.log(`Connected highpass filter for ${sound.pollution} at ${sound.highpassFilter}Hz`)
-    } else if (audio.filterNode) {
-      // If no filter is specified but one exists, remove it
-      audio.filterNode.disconnect()
-      audio.gainNode.connect(audio.audioContext.destination)
     }
 
     // Apply bass boost if specified
     if (sound.bassBoost !== undefined && sound.bassBoost !== null) {
-      // Disconnect existing bass boost if it exists
-      if (audio.bassBoostNode) {
-        audio.bassBoostNode.disconnect()
-      }
-
       // Create and configure bass boost filter
       audio.bassBoostNode = audio.audioContext.createBiquadFilter()
       audio.bassBoostNode.type = 'lowshelf'
       audio.bassBoostNode.frequency.value = sound.bassBoost.frequency
       audio.bassBoostNode.gain.value = sound.bassBoost.gain
 
-      // Disconnect gain node from destination
+      // Disconnect existing connections
+      if (audio.filterNode) {
+        audio.filterNode.disconnect()
+      }
+      if (audio.highpassNode) {
+        audio.highpassNode.disconnect()
+      }
       audio.gainNode.disconnect()
 
       // Connect the chain: source -> gain -> bass boost -> destination
@@ -229,19 +234,10 @@ function manageSoundElement(sound, shouldPlay) {
       console.log(
         `Connected bass boost for ${sound.pollution} at ${sound.bassBoost.frequency}Hz with ${sound.bassBoost.gain}dB gain`
       )
-    } else if (audio.bassBoostNode) {
-      // If no bass boost is specified but one exists, remove it
-      audio.bassBoostNode.disconnect()
-      audio.gainNode.connect(audio.audioContext.destination)
     }
 
     // Apply reverbation if specified
     if (sound.reverbation !== undefined && sound.reverbation !== null) {
-      // Disconnect existing reverb if it exists
-      if (audio.reverbNode) {
-        audio.reverbNode.disconnect()
-      }
-
       // Create and configure reverb
       audio.reverbNode = audio.audioContext.createConvolver()
 
@@ -265,7 +261,16 @@ function manageSoundElement(sound, shouldPlay) {
       audio.reverbGainNode = audio.audioContext.createGain()
       audio.reverbGainNode.gain.value = 0.3 // Adjust this value to control reverb intensity
 
-      // Disconnect gain node from destination
+      // Disconnect existing connections
+      if (audio.filterNode) {
+        audio.filterNode.disconnect()
+      }
+      if (audio.highpassNode) {
+        audio.highpassNode.disconnect()
+      }
+      if (audio.bassBoostNode) {
+        audio.bassBoostNode.disconnect()
+      }
       audio.gainNode.disconnect()
 
       // Connect the chain: source -> gain -> reverb -> reverbGain -> destination
@@ -274,11 +279,6 @@ function manageSoundElement(sound, shouldPlay) {
       audio.reverbGainNode.connect(audio.audioContext.destination)
 
       console.log(`Connected reverbation for ${sound.pollution}`)
-    } else if (audio.reverbNode) {
-      // If no reverb is specified but one exists, remove it
-      audio.reverbNode.disconnect()
-      audio.reverbGainNode.disconnect()
-      audio.gainNode.connect(audio.audioContext.destination)
     }
 
     audio.play()
@@ -1385,21 +1385,43 @@ function parseAmplitude(amplitude) {
  * Applies risk functions for selected recipient groups
  */
 function applyRiskFunctions() {
-  gameState.selectedRecipients.forEach((recipient) => {
-    switch (recipient.risk_function) {
-      case 'reduced_time':
-        gameState.timeRemaining = Math.max(10, gameState.timeRemaining - 20)
-        gameState.guessingTimeRemaining = Math.max(3, gameState.guessingTimeRemaining - 2)
-        updateTimer(gameState.timeRemaining)
-        break
+  // First, select random sounds if needed
+  if (gameState.selectedSounds.length === 0) {
+    gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
+  }
 
+  // Track which risk functions have been applied to avoid duplicates
+  const appliedRiskFunctions = new Set()
+
+  // Apply time-based effects first
+  gameState.selectedRecipients.forEach((recipient) => {
+    if (recipient.risk_function === 'reduced_time' && !appliedRiskFunctions.has('reduced_time')) {
+      appliedRiskFunctions.add('reduced_time')
+      gameState.timeRemaining = Math.max(10, gameState.timeRemaining - 10) // Changed from 20 to 10
+      gameState.guessingTimeRemaining = Math.max(3, gameState.guessingTimeRemaining - 2)
+      updateTimer(gameState.timeRemaining)
+    }
+  })
+
+  // Apply sound modifications
+  gameState.selectedRecipients.forEach((recipient) => {
+    // Skip if this risk function has already been applied
+    if (appliedRiskFunctions.has(recipient.risk_function)) {
+      return
+    }
+    appliedRiskFunctions.add(recipient.risk_function)
+
+    switch (recipient.risk_function) {
       case 'right_channel_sine':
-        gameState.selectedSounds.push({
-          pollution: 'tinnitus',
-          sound_file: 'sounds/tinnitus.ogg',
-          amplitude: '0-0',
-          isTinnitus: true
-        })
+        // Only add tinnitus if it's not already present
+        if (!gameState.selectedSounds.some((sound) => sound.isTinnitus)) {
+          gameState.selectedSounds.push({
+            pollution: 'tinnitus',
+            sound_file: 'sounds/tinnitus.ogg',
+            amplitude: '0-0',
+            isTinnitus: true
+          })
+        }
         break
 
       case 'loud_sounds_louder':
@@ -1412,9 +1434,6 @@ function applyRiskFunctions() {
         break
 
       case 'loud_rumble':
-        if (gameState.selectedSounds.length === 0) {
-          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
-        }
         const industrialSound = gameState.pollutions.find((sound) => sound.pollution === 'przemysł')
         if (industrialSound && !gameState.selectedSounds.some((sound) => sound.pollution === 'przemysł')) {
           gameState.selectedSounds.push(industrialSound)
@@ -1422,9 +1441,6 @@ function applyRiskFunctions() {
         break
 
       case 'lowpass_filter':
-        if (gameState.selectedSounds.length === 0) {
-          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
-        }
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
             sound.lowpassFilter = 200
@@ -1433,9 +1449,6 @@ function applyRiskFunctions() {
         break
 
       case 'high_frequency_loss':
-        if (gameState.selectedSounds.length === 0) {
-          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
-        }
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
             sound.lowpassFilter = 1500
@@ -1444,9 +1457,6 @@ function applyRiskFunctions() {
         break
 
       case 'low_amplified':
-        if (gameState.selectedSounds.length === 0) {
-          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
-        }
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
             sound.bassBoost = {
@@ -1458,9 +1468,6 @@ function applyRiskFunctions() {
         break
 
       case 'reverbation':
-        if (gameState.selectedSounds.length === 0) {
-          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
-        }
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
             sound.reverbation = true
@@ -1469,18 +1476,17 @@ function applyRiskFunctions() {
         break
 
       case 'distorted_song_pattern':
-        gameState.selectedSounds.push({
-          pollution: 'zniekształcony śpiew ptaków',
-          sound_file: 'sounds/birds_393699.ogg',
-          amplitude: '0-0',
-          isTinnitus: true
-        })
+        if (!gameState.selectedSounds.some((sound) => sound.pollution === 'zniekształcony śpiew ptaków')) {
+          gameState.selectedSounds.push({
+            pollution: 'zniekształcony śpiew ptaków',
+            sound_file: 'sounds/birds_393699.ogg',
+            amplitude: '0-0',
+            isTinnitus: true
+          })
+        }
         break
 
       case 'highpass_filter':
-        if (gameState.selectedSounds.length === 0) {
-          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
-        }
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
             sound.highpassFilter = 2000
@@ -1489,12 +1495,8 @@ function applyRiskFunctions() {
         break
 
       case 'bandpass_filter':
-        if (gameState.selectedSounds.length === 0) {
-          gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1)
-        }
         gameState.selectedSounds.forEach((sound) => {
           if (!sound.isTinnitus) {
-            // Create bandpass filter by combining lowpass and highpass filters
             sound.lowpassFilter = 2000
             sound.highpassFilter = 500
           }
@@ -1509,6 +1511,7 @@ function applyRiskFunctions() {
             sound.highpassFilter = 2000
           }
         })
+        break
     }
   })
 }

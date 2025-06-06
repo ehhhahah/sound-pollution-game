@@ -44,8 +44,8 @@
         "label": "osoba słabosłysząca",
         "risk_function": "bandpass_filter",
         "description": "Osoby słabosłyszące (z częściowym niedosłuchem) są szczególnie narażone na negatywne skutki zanieczyszczenia hałasem. Hałas środowiskowy utrudnia im rozumienie mowy i komunikację, ponieważ ich słuch jest już osłabiony i mniej skutecznie filtruje sygnał mowy od dźwięków tła. W głośnym otoczeniu szybko się męczą, mogą doświadczać izolacji społecznej i pogorszenia jakości życia. W grze niektóre częstotliwości będą wyciszone.",
-        "source": "https://www.swiatciszy.pl/poradnik/kim-jest-osoba-slaboslyszaca/, https://www.who.int/news-room/fact-sheets/detail/deafness-and-hearing-loss, https://www.poradnikzdrowie.pl/zdrowie/laryngologia/niedoslyszacy-kim-jest-osoba-niedoslyszaca-aa-6r4A-Kd8W-3JwS.html",
-        "source_name": "Kim jest osoba słabosłysząca? (Świat Ciszy), Deafness and hearing loss (WHO), Kim jest osoba niedosłysząca? (Poradnik Zdrowie)"
+        "source": "https://www.swiatciszy.pl/poradnik/kim-jest-osoba-slaboslyszaca/",
+        "source_name": "Kim jest osoba słabosłysząca? (Świat Ciszy)"
     },
     {
         "group": "seniorzy",

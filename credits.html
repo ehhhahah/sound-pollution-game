@@ -13,6 +13,12 @@
           <!-- Content will be loaded dynamically -->
         </ul>
       </div>
+      <div class="rules-section">
+        <h2>Bibliografia</h2>
+        <ul id="bibliography" class="bibliography">
+          <!-- Content will be loaded dynamically -->
+        </ul>
+      </div>
     </div>
     <div id="footer-container"></div>
     <script src="components/loadComponents.js"></script>
@@ -44,8 +50,30 @@
         }
       }
 
-      // Load credits when the page loads
-      document.addEventListener('DOMContentLoaded', loadSoundCredits)
+      async function loadBibliography() {
+        try {
+          const response = await fetch('components/recipients.json')
+          const data = await response.json()
+
+          const bibliographyList = document.getElementById('bibliography')
+
+          data.forEach((recipient) => {
+            const li = document.createElement('li')
+            const [sourceName, sourceInfo] = recipient.source_name.split(' (')
+            const parentheticalText = sourceInfo ? `(${sourceInfo}` : ''
+            li.innerHTML = `<a href="${recipient.source}" target="_blank">${sourceName}</a> ${parentheticalText}`
+            bibliographyList.appendChild(li)
+          })
+        } catch (error) {
+          console.error('Error loading bibliography:', error)
+        }
+      }
+
+      // Load credits and bibliography when the page loads
+      document.addEventListener('DOMContentLoaded', () => {
+        loadSoundCredits()
+        loadBibliography()
+      })
     </script>
   </body>
 </html>

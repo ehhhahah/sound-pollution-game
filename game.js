@@ -1338,10 +1338,10 @@ function createRecipientSelection() {
 /**
  * Helper function to select random sounds
  * @param {number} count - Number of sounds to select
+ * @param {Array} [availableSounds] - Optional array of sounds to select from. If not provided, uses gameState.pollutions
  * @returns {Array} Array of selected sounds
  */
-function selectRandomSounds(count) {
-  const availableSounds = [...gameState.pollutions]
+function selectRandomSounds(count, availableSounds = [...gameState.pollutions]) {
   const selected = []
   count = Math.min(count, 2)
   for (let i = 0; i < count; i++) {
@@ -1458,7 +1458,7 @@ function applyRiskFunctions() {
 
       case 'distorted_song_pattern':
         gameState.selectedSounds.push({
-          pollution: 'birds',
+          pollution: 'zniekształcony śpiew ptaków',
           sound_file: 'sounds/birds_393699.ogg',
           amplitude: '0-0',
           isTinnitus: true
@@ -1475,6 +1475,15 @@ function applyRiskFunctions() {
           }
         })
         break
+
+      case 'no_nature':
+        const anthropogenicSounds = gameState.pollutions.filter((sound) => sound.is_antropo)
+        gameState.selectedSounds = selectRandomSounds(Math.floor(Math.random() * 5) + 1, anthropogenicSounds)
+        gameState.selectedSounds.forEach((sound) => {
+          if (!sound.isTinnitus) {
+            sound.highpassFilter = 2000
+          }
+        })
     }
   })
 }

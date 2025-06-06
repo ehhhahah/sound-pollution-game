@@ -1,13 +1,39 @@
 [
     {
+        "pollution": "cykady",
+        "amplitude": "60-120 dB",
+        "frequency": "ciągła, sezonowa (lato, upały, głównie w dzień)",
+        "sound_file": [
+            "sounds/cicadas_515054.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/Nox_Sound/sounds/515054/"
+        ],
+        "affects": [
+            "mieszkańcy terenów wiejskich i podmiejskich",
+            "osoby przebywające na obszarach zielonych",
+            "turyści",
+            "dzika przyroda"
+        ],
+        "existence": [
+            "lasy liściaste i mieszane",
+            "parki",
+            "ogrody",
+            "tereny śródziemnomorskie i tropikalne"
+        ],
+        "is_antropo": false
+    },
+    {
         "pollution": "kolej",
         "amplitude": "70-90 dB",
         "frequency": "regularna, zależna od rozkładu jazdy",
         "sound_file": [
-            "sounds/railway.ogg"
+            "sounds/railway_113178.ogg",
+            "sounds/railway_689228.ogg"
         ],
         "sound_file_sources": [
-            "https://freesound.org/people/miastodzwiekow/sounds/113178/"
+            "https://freesound.org/people/miastodzwiekow/sounds/113178/",
+            "https://freesound.org/people/Mouffette/sounds/689228/"
         ],
         "affects": [
             "mieszkańcy w pobliżu torów",
@@ -17,7 +43,8 @@
             "tory kolejowe",
             "stacje",
             "dworce kolejowe"
-        ]
+        ],
+        "is_antropo": true
     },
     {
         "pollution": "kosiarka",
@@ -41,7 +68,8 @@
             "parki publiczne",
             "boiska sportowe",
             "tereny rekreacyjne"
-        ]
+        ],
+        "is_antropo": true
     },
     {
         "pollution": "pojazdy_ratunkowe",
@@ -68,7 +96,8 @@
             "okolice szpitali",
             "centra miast",
             "główne arterie komunikacyjne"
-        ]
+        ],
+        "is_antropo": true
     },
     {
         "pollution": "przemysł",
@@ -91,7 +120,8 @@
             "fabryki",
             "strefy przemysłowe",
             "zakłady produkcyjne"
-        ]
+        ],
+        "is_antropo": true
     },
     {
         "pollution": "ruch_pieszych",
@@ -113,7 +143,8 @@
             "ulice handlowe",
             "centra miast",
             "obszary mieszkalne"
-        ]
+        ],
+        "is_antropo": true
     },
     {
         "pollution": "ruch_uliczny",
@@ -139,7 +170,30 @@
             "przedmieścia",
             "autostrady",
             "obszary mieszkalne"
-        ]
+        ],
+        "is_antropo": true
+    },
+    {
+        "pollution": "rzeka",
+        "amplitude": "40-80 dB",
+        "frequency": "ciągła lub zmienna, zależna od przepływu i warunków pogodowych",
+        "sound_file": [
+            "sounds/river_647357.ogg"
+        ],
+        "sound_file_sources": [
+            "https://freesound.org/people/klankbeeld/sounds/647357/"
+        ],
+        "affects": [
+            "mieszkańcy w pobliżu rzek",
+            "użytkownicy terenów rekreacyjnych nad rzeką",
+            "dzika przyroda (ptaki, ssaki, owady wodne)"
+        ],
+        "existence": [
+            "koryta rzek w miastach i na terenach wiejskich",
+            "parki nadrzeczne",
+            "tereny rekreacyjne nad wodą"
+        ],
+        "is_antropo": false
     },
     {
         "pollution": "samolot",
@@ -159,6 +213,7 @@
         "existence": [
             "trasy lotnicze",
             "obszary w pobliżu lotnisk"
-        ]
+        ],
+        "is_antropo": true
     }
 ]

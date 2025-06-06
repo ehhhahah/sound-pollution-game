@@ -4,62 +4,79 @@
         "label": "grzybnia",
         "risk_function": "highpass_filter",
         "description": "Fale dźwiękowe mogą pozytywnie wpływać na wzrost grzybni glebowej. Badania wykazały, że grzyby reagują na dźwięki w glebie, co może być wykorzystane do poprawy regeneracji ekosystemów.",
-        "source": "https://www.scimex.org/newsfeed/get-down-and-get-dirty-how-soundwaves-appear-to-stimulate-soil"
+        "source": "https://www.scimex.org/newsfeed/get-down-and-get-dirty-how-soundwaves-appear-to-stimulate-soil",
+        "source_name": "Get down and get dirty: how soundwaves appear to stimulate soil (Scimex)"
     },
     {
         "group": "nietoperze",
         "label": "nietoperz",
         "risk_function": "reverbation",
         "description": "Nietoperze polegają na echolokacji podczas nawigacji. Hałas środowiskowy je dezorientuje, powodując błędne interpretacje sygnałów powrotnych i trudności w poruszaniu się. Może to prowadzić do przypadkowego wlatywania do budynków. W grze sygnały sonarowe są zakłócane fałszywymi echami.",
-        "source": "https://www.mpg.de/9816365/bats-echolocation-noise"
+        "source": "https://www.mpg.de/9816365/bats-echolocation-noise",
+        "source_name": "Environmental noise disrupts bats' echolocation (Max Planck Society)"
     },
     {
         "group": "niewidomi",
         "label": "osoba niewidoma",
         "risk_function": "loud_sounds_louder",
         "description": "Osoby niewidome polegają na słuchu w orientacji przestrzennej. Głośne i nagłe dźwięki mogą być dla nich szczególnie dezorientujące lub stresujące, a hałas utrudnia im codzienne funkcjonowanie. W grze głośne dźwięki są dodatkowo wzmacniane, by oddać tę wrażliwość.",
-        "source": "https://pubmed.ncbi.nlm.nih.gov/11312316/"
+        "source": "https://pubmed.ncbi.nlm.nih.gov/11312316/",
+        "source_name": "Auditory spatial localization by blind humans (PubMed)"
     },
     {
         "group": "seniorzy",
         "label": "osoba starsza",
         "risk_function": "high_frequency_loss",
         "description": "Osoby starsze często doświadczają presbyakuzji, czyli pogorszenia słuchu w zakresie wysokich częstotliwości. Hałas może być dla nich szczególnie uciążliwy, a zrozumienie mowy w trudnych warunkach akustycznych staje się wyzwaniem. W grze wysokie tony są wyciszone aby oddać to doświadczenie.",
-        "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3889367/"
+        "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3889367/",
+        "source_name": "Presbycusis: An Update on Cochlear Mechanisms and Management Strategies (PMC)"
     },
     {
         "group": "ubodzy",
         "label": "osoba wykluczona ekonomicznie",
         "risk_function": "loud_rumble",
         "description": "Miejsca przystępne cenowo często idą w parze z wysokim poziomem hałasu (np. przy ruchliwych ulicach, w pobliżu przemysłu), co negatywnie wpływa na zdrowie i samopoczucie mieszkańców. W grze tło dźwiękowe jest stale zakłócane hałasem.",
-        "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4358710/"
+        "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4358710/",
+        "source_name": "Environmental Noise Pollution in the United States: Developing an Effective Public Health Response (PMC)"
+    },
+    {
+        "group": "las",
+        "label": "miejski ekosystem leśny",
+        "risk_function": "no_nature",
+        "description": "Wprowadzenie hałasu ludzkiego do środowiska leśnego prowadzi do spadku różnorodności i gęstości dźwięków zwierząt, a niektóre gatunki całkowicie milkną lub zanikają lokalnie. Taki ekosystem traci swoją akustyczną sygnaturę, a powrót do stanu pierwotnego jest bardzo trudny. Gra oddaje to trudne doświadczenie dla ekosystemu poprzez odtworzenie jedynie dźwięków generowanych przez człowieka.",
+        "source": "https://yalebooks.yale.edu/book/9780300218190/wild-soundscapes/",
+        "source_name": "Wild Soundscapes: Discovering the Voice of the Natural World (Bernie Krause, Yale University Press)"
     },
     {
         "group": "spektrum autyzmu",
         "label": "osoba neuroróżnorodna",
         "risk_function": "reduced_time",
         "description": "Osoby na przykład z ADHD lub na spektrum autyzmu są często nadwrażliwe na dźwięki, przez co hałas może powodować u nich szybkie zmęczenie, rozproszenie i trudności z koncentracją. W grze skrócony czas rozgrywki odzwierciedla trudności ze skupieniem w środowisku pełnym bodźców dźwiękowych.",
-        "source": "https://pubmed.ncbi.nlm.nih.gov/33285160/"
+        "source": "https://pubmed.ncbi.nlm.nih.gov/33285160/",
+        "source_name": "Auditory hypersensitivity and processing in autism spectrum disorder (PubMed)"
     },
     {
         "group": "tinnitus",
         "label": "osoba narażona na hałas",
         "risk_function": "right_channel_sine",
         "description": "Osoby długotrwale przebywające w hałasie mogą doświadczać szumów usznych (tinnitus), które objawiają się jako nieprzyjemne dźwięki (np. piski, szumy) słyszane bez zewnętrznego źródła. W grze efekt ten symulowany jest przez dodatkowy dźwięk, co utrudnia odbiór innych dźwięków.",
-        "source": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4208401/"
+        "source": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4208401/",
+        "source_name": "Tinnitus: mechanisms, pathophysiology, and treatment (PMC)"
     },
     {
         "group": "ptaki_miejskie",
         "label": "ptaki w środowisku miejskim",
         "risk_function": "distorted_song_pattern",
         "description": "Ptaki żyjące w środowisku miejskim narażone na hałas miejski rozwijają upośledzone wzorce śpiewu z powodu zakłóceń w nauce wokalizacji. Ich pieśni stają się mniej precyzyjne, co utrudnia komunikację i przywabianie partnerów. Dodatkowo chroniczny stres wywołany hałasem osłabia ich układ odpornościowy, prowadząc do niższej przeżywalności. W grze odtworzony będzie zniekształcony śpiew ptaków.",
-        "source": "https://nationalzoo.si.edu/news/smithsonian-scientists-discover-urban-songbirds-adjust-their-melodies-adapt-various-elements"
+        "source": "https://nationalzoo.si.edu/news/smithsonian-scientists-discover-urban-songbirds-adjust-their-melodies-adapt-various-elements",
+        "source_name": "Smithsonian scientists discover urban songbirds adjust their melodies to adapt to various elements (Smithsonian's National Zoo & Conservation Biology Institute)"
     },
     {
         "group": "płód",
         "label": "płód",
         "risk_function": "lowpass_filter",
         "description": "Płód w łonie matki odbiera dźwięki, mimo że w sposób mocno zniekształcony przez tkanki i płyn owodniowy, przez co dźwięki docierają głównie jako niskie, przytłumione odgłosy. W grze symulowane jest to filtrem dolnoprzepustowym.",
-        "source": "https://europepmc.org/article/med/7979483"
+        "source": "https://europepmc.org/article/med/7979483",
+        "source_name": "Fetal sound perception (Europe PMC)"
     }
 ]

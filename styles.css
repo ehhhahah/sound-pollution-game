@@ -10,7 +10,7 @@
   --lead-dark: rgb(50 81 99);
   --lead-hover: rgb(185, 185, 185);
   --win-green: rgb(43, 93, 71);
-  --win-green-dark: rgb(58, 125, 79);
+  --win-green-dark: rgb(133, 190, 150);
   --background-light: rgb(227, 227, 223);
   --text-dark: #1f1f1f;
   --text-heading: #000000;
@@ -394,9 +394,8 @@ h1 {
 }
 
 .primary-button:focus {
-  outline: 2px solid #007bff;
+  outline: 2px solid var(--lead);
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .primary-button:focus:not(:focus-visible) {
@@ -405,13 +404,11 @@ h1 {
 }
 
 .primary-button:focus-visible {
-  outline: 2px solid #007bff;
+  outline: 2px solid var(--lead);
   outline-offset: 2px;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .primary-button:hover {
-  background-color: var(--win-green-dark);
   transform: translateY(-1px);
 }
 
@@ -586,6 +583,7 @@ header a:hover {
   justify-content: center;
   margin: var(--spacing-lg) var(--spacing-md);
   font-size: var(--text-xxl);
+  letter-spacing: -0.1rem;
 }
 
 .recipient-selection h2 span {
@@ -718,6 +716,11 @@ label::first-letter {
   font-size: var(--text-sm);
   z-index: 200;
   /* transition: opacity var(--transition-fast), visibility var(--transition-fast); */
+}
+
+.tooltiptext .link {
+  margin-top: 10px;
+  float: right;
 }
 
 .tooltip:hover .tooltiptext,

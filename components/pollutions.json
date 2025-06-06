@@ -47,7 +47,7 @@
         "is_antropo": true
     },
     {
-        "pollution": "kosiarka",
+        "pollution": "koszenie trawy",
         "amplitude": "60-105 dB",
         "frequency": "sezonowa, weekendowa",
         "sound_file": [
@@ -124,7 +124,7 @@
         "is_antropo": true
     },
     {
-        "pollution": "pszczoła",
+        "pollution": "lot pszczoły",
         "amplitude": "30-80 dB",
         "frequency": "ciągła, sezonowa (wiosna-lato, głównie w dzień)",
         "sound_file": [
@@ -199,7 +199,7 @@
         "is_antropo": true
     },
     {
-        "pollution": "rzeka",
+        "pollution": "dźwięk rzeki",
         "amplitude": "40-80 dB",
         "frequency": "ciągła lub zmienna, zależna od przepływu i warunków pogodowych",
         "sound_file": [

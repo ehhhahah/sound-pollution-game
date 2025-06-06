@@ -3,7 +3,7 @@
         "group": "nietoperze",
         "label": "nietoperz",
         "risk_function": "reverbation",
-        "description": "Nietoperze polegają na echolokacji podczas nawigacji. Hałas środowiskowy je dezorientuje, powodując błędne interpretacje sygnałów powrotnych i trudności w poruszaniu się. Może to prowadzić do przypadkowego wlatywania do budynków. W grze sygnały sonarowe są zakłócane fałszywymi echami.",
+        "description": "Nietoperze polegają na echolokacji podczas poruszania się. Hałas środowiskowy je dezorientuje, powodując błędne interpretacje sygnałów powrotnych i trudności w poruszaniu się. Może to prowadzić do przypadkowego wlatywania do budynków. W grze wszystkie dźwięki odtworzone są jako echo.",
         "source": "https://www.mpg.de/9816365/bats-echolocation-noise",
         "source_name": "Environmental noise disrupts bats' echolocation (Max Planck Society)"
     },

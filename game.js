@@ -341,6 +341,18 @@ function updateTimer(time, isGuessingPhase = false) {
     gameState.guessingTimeRemaining = time
   } else {
     gameState.timeRemaining = time
+
+    // Update time adjustment button states
+    const decreaseTimeBtn = document.getElementById('decreaseTime')
+    const increaseTimeBtn = document.getElementById('increaseTime')
+
+    if (decreaseTimeBtn) {
+      decreaseTimeBtn.disabled = time <= 10
+    }
+
+    if (increaseTimeBtn) {
+      increaseTimeBtn.disabled = time >= 60
+    }
   }
 }
 
@@ -1376,7 +1388,7 @@ function applyRiskFunctions() {
   gameState.selectedRecipients.forEach((recipient) => {
     switch (recipient.risk_function) {
       case 'reduced_time':
-        gameState.timeRemaining = Math.max(10, gameState.timeRemaining - 10)
+        gameState.timeRemaining = Math.max(10, gameState.timeRemaining - 20)
         gameState.guessingTimeRemaining = Math.max(3, gameState.guessingTimeRemaining - 2)
         updateTimer(gameState.timeRemaining)
         break
